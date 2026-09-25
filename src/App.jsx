@@ -6,6 +6,7 @@ import Manage from "./pages/Manage";
 import History from "./pages/History";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Profile from "./pages/Profile";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
             <Route index element={<Dashboard />} />
             <Route path="manage" element={<Manage />} />
             <Route path="history" element={<History />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </AuthProvider>

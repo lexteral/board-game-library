@@ -103,6 +103,19 @@
     "approveSuccess": "อนุมัติการคืนแล้ว!",
     "rejectSuccess": "ปฏิเสธการคืนแล้ว"
   },
+  "profile": {
+    "title": "โปรไฟล์ของฉัน",
+    "editInfo": "ข้อมูลส่วนตัว",
+    "changePassword": "เปลี่ยนรหัสผ่าน",
+    "currentPassword": "รหัสผ่านปัจจุบัน",
+    "newPassword": "รหัสผ่านใหม่",
+    "saveChanges": "บันทึกการเปลี่ยนแปลง",
+    "saving": "กำลังบันทึก...",
+    "resetPassword": "เปลี่ยนรหัสผ่าน",
+    "updateSuccess": "อัปเดตข้อมูลสำเร็จ!",
+    "passwordSuccess": "เปลี่ยนรหัสผ่านสำเร็จ!",
+    "allFieldsRequired": "กรุณากรอกข้อมูลให้ครบทุกช่อง"
+  },
   "history": {
     "title": "ประวัติการยืม",
     "searchPlaceholder": "ค้นหาด้วยชื่อหรือรหัส...",

@@ -54,7 +54,12 @@ export default function Layout() {
               </div>
 
               <div className="ml-1 flex items-center gap-1.5">
-                <span className="text-xs text-gray-500 hidden sm:inline">{user?.name}</span>
+                <NavLink
+                  to="/profile"
+                  className="text-xs text-gray-500 hidden sm:inline hover:text-violet-600 transition-colors cursor-pointer"
+                >
+                  {user?.name}
+                </NavLink>
                 <button
                   onClick={logout}
                   className="px-2.5 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors"

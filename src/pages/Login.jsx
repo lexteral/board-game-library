@@ -61,7 +61,6 @@ export default function Login() {
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
               placeholder="12345678"
-              maxLength={8}
               required
             />
           </div>

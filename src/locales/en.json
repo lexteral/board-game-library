@@ -103,6 +103,19 @@
     "approveSuccess": "Return approved!",
     "rejectSuccess": "Return rejected."
   },
+  "profile": {
+    "title": "My Profile",
+    "editInfo": "Personal Information",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "resetPassword": "Change Password",
+    "updateSuccess": "Profile updated successfully!",
+    "passwordSuccess": "Password changed successfully!",
+    "allFieldsRequired": "All fields are required."
+  },
   "history": {
     "title": "Borrowing History",
     "searchPlaceholder": "Search by name or ID...",

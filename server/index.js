@@ -80,6 +80,52 @@ app.get("/api/auth/me", requireAuth, async (req, res) => {
   }
 });
 
+app.put("/api/auth/profile", requireAuth, async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name and email are required" });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Invalid email address" });
+    }
+    const [user] = await sql`
+      UPDATE users SET name = ${name}, email = ${email}
+      WHERE id = ${req.user.id}
+      RETURNING id, name, student_id, email, role
+    `;
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json({ id: user.id, name: user.name, studentId: user.student_id, email: user.email, role: user.role });
+  } catch (err) {
+    console.error("Profile update error:", err);
+    res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+app.put("/api/auth/password", requireAuth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Current and new password are required" });
+    }
+    if (newPassword.length < 4) {
+      return res.status(400).json({ error: "New password must be at least 4 characters" });
+    }
+    const [user] = await sql`SELECT password_hash FROM users WHERE id = ${req.user.id}`;
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const valid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!valid) {
+      return res.status(401).json({ error: "Current password is incorrect" });
+    }
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await sql`UPDATE users SET password_hash = ${newHash} WHERE id = ${req.user.id}`;
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Password change error:", err);
+    res.status(500).json({ error: "Failed to change password" });
+  }
+});
+
 app.post("/api/auth/promote", requireAuth, requireAdmin, async (req, res) => {
   try {
     const { studentId } = req.body;
@@ -264,15 +310,25 @@ app.post("/api/borrowings/:id/reject", requireAuth, requireAdmin, async (req, re
   }
 });
 
-// ── Start ────────────────────────────────────────────────────
+// ── Schema init (runs once) ──────────────────────────────────
+
+let schemaReady = initSchema().catch((err) => {
+  console.error("Failed to initialize database:", err);
+});
+
+app.use(async (req, res, next) => {
+  await schemaReady;
+  next();
+});
+
+export default app;
+
+// ── Local dev server ─────────────────────────────────────────
 
 const PORT = process.env.PORT || 3001;
 
-initSchema()
-  .then(() => {
+if (process.env.VERCEL !== "1") {
+  schemaReady.then(() => {
     app.listen(PORT, () => console.log(`API server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error("Failed to initialize database:", err);
-    process.exit(1);
   });
+}
