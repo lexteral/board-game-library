@@ -43,32 +43,49 @@ export default function History() {
       {filtered.length === 0 ? (
         <p className="text-center text-gray-400 py-12">{t("history.noHistory")}</p>
       ) : (
-        <div className="overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl border border-violet-100">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gradient-to-r from-violet-50 to-fuchsia-50 text-gray-500 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-3">{t("history.game")}</th>
-                <th className="px-4 py-3">{t("history.borrower")}</th>
-                <th className="px-4 py-3 hidden sm:table-cell">{t("history.studentId")}</th>
-                <th className="px-4 py-3 hidden md:table-cell">{t("history.borrowDate")}</th>
-                <th className="px-4 py-3">{t("history.returnDate")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filtered.map((b) => (
-                <tr key={b.id}>
-                  <td className="px-4 py-3 font-medium text-gray-900">
-                    {gameMap[b.game_id]?.name}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{b.borrower_name}</td>
-                  <td className="px-4 py-3 text-gray-700 hidden sm:table-cell">{b.borrower_student_id}</td>
-                  <td className="px-4 py-3 text-gray-700 hidden md:table-cell">{fmtDate(b.borrow_date)}</td>
-                  <td className="px-4 py-3 text-gray-700">{fmtDate(b.returned_date)}</td>
+        <>
+          {/* Mobile cards */}
+          <div className="sm:hidden space-y-3">
+            {filtered.map((b) => (
+              <div key={b.id} className="bg-white/80 backdrop-blur-sm rounded-xl border border-violet-100 p-4 space-y-1.5">
+                <div className="font-medium text-gray-900">{gameMap[b.game_id]?.name}</div>
+                <div className="text-sm text-gray-600">{b.borrower_name} · {b.borrower_student_id}</div>
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span>{t("history.borrowDate")}: {fmtDate(b.borrow_date)}</span>
+                  <span>{t("history.returnDate")}: {fmtDate(b.returned_date)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden sm:block overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl border border-violet-100">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-gradient-to-r from-violet-50 to-fuchsia-50 text-gray-500 uppercase text-xs">
+                <tr>
+                  <th className="px-4 py-3">{t("history.game")}</th>
+                  <th className="px-4 py-3">{t("history.borrower")}</th>
+                  <th className="px-4 py-3">{t("history.studentId")}</th>
+                  <th className="px-4 py-3">{t("history.borrowDate")}</th>
+                  <th className="px-4 py-3">{t("history.returnDate")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {filtered.map((b) => (
+                  <tr key={b.id}>
+                    <td className="px-4 py-3 font-medium text-gray-900">
+                      {gameMap[b.game_id]?.name}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{b.borrower_name}</td>
+                    <td className="px-4 py-3 text-gray-700">{b.borrower_student_id}</td>
+                    <td className="px-4 py-3 text-gray-700">{fmtDate(b.borrow_date)}</td>
+                    <td className="px-4 py-3 text-gray-700">{fmtDate(b.returned_date)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

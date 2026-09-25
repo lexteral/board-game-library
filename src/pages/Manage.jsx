@@ -82,13 +82,54 @@ export default function Manage() {
             </span>
             <span className="text-sm font-normal text-gray-400">({pending.length})</span>
           </h2>
-          <div className="overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl border border-amber-200/60">
+
+          {/* Mobile cards */}
+          <div className="sm:hidden space-y-3">
+            {pending.map((b) => (
+              <div key={b.id} className="bg-white/80 backdrop-blur-sm rounded-xl border border-amber-200/60 p-4 space-y-3">
+                <div className="font-medium text-gray-900">{gameMap[b.game_id]?.name}</div>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>{b.borrower_name}</span>
+                  <span className="text-gray-400">{b.borrower_student_id}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  {b.return_photo && (
+                    <button
+                      onClick={() => setViewPhoto(b.return_photo)}
+                      className="w-12 h-12 rounded-lg overflow-hidden border border-violet-200 hover:border-fuchsia-400 transition-colors"
+                    >
+                      <img src={b.return_photo} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <div className="flex gap-2 ml-auto">
+                      <button
+                        onClick={() => handleApprove(b.id)}
+                        className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors"
+                      >
+                        {t("manage.approveButton")}
+                      </button>
+                      <button
+                        onClick={() => handleReject(b.id)}
+                        className="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 text-xs font-medium hover:bg-red-200 transition-colors"
+                      >
+                        {t("manage.rejectButton")}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden sm:block overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl border border-amber-200/60">
             <table className="w-full text-sm text-left">
               <thead className="bg-gradient-to-r from-amber-50 to-fuchsia-50 text-gray-500 uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3">{t("manage.game")}</th>
                   <th className="px-4 py-3">{t("manage.borrower")}</th>
-                  <th className="px-4 py-3 hidden sm:table-cell">{t("manage.studentId")}</th>
+                  <th className="px-4 py-3">{t("manage.studentId")}</th>
                   <th className="px-4 py-3">{t("manage.photo")}</th>
                   {isAdmin && <th className="px-4 py-3">{t("manage.action")}</th>}
                 </tr>
@@ -100,7 +141,7 @@ export default function Manage() {
                       {gameMap[b.game_id]?.name}
                     </td>
                     <td className="px-4 py-3 text-gray-700">{b.borrower_name}</td>
-                    <td className="px-4 py-3 text-gray-700 hidden sm:table-cell">{b.borrower_student_id}</td>
+                    <td className="px-4 py-3 text-gray-700">{b.borrower_student_id}</td>
                     <td className="px-4 py-3">
                       {b.return_photo && (
                         <button
@@ -148,56 +189,86 @@ export default function Manage() {
         {active.length === 0 ? (
           <p className="text-center text-gray-400 py-12">{t("manage.noActive")}</p>
         ) : (
-          <div className="overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl border border-violet-100">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gradient-to-r from-violet-50 to-fuchsia-50 text-gray-500 uppercase text-xs">
-                <tr>
-                  <th className="px-4 py-3">{t("manage.game")}</th>
-                  <th className="px-4 py-3">{t("manage.borrower")}</th>
-                  <th className="px-4 py-3 hidden sm:table-cell">{t("manage.studentId")}</th>
-                  <th className="px-4 py-3 hidden md:table-cell">{t("manage.borrowDate")}</th>
-                  <th className="px-4 py-3">{t("manage.expectedReturn")}</th>
-                  <th className="px-4 py-3">{t("manage.status")}</th>
-                  <th className="px-4 py-3">{t("manage.action")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {active.map((b) => {
-                  const overdue = fmtDate(b.expected_return_date) < today;
-                  return (
-                    <tr key={b.id} className={overdue ? "bg-orange-50/50" : ""}>
-                      <td className="px-4 py-3 font-medium text-gray-900">
-                        {gameMap[b.game_id]?.name}
-                      </td>
-                      <td className="px-4 py-3 text-gray-700">{b.borrower_name}</td>
-                      <td className="px-4 py-3 text-gray-700 hidden sm:table-cell">{b.borrower_student_id}</td>
-                      <td className="px-4 py-3 text-gray-700 hidden md:table-cell">{fmtDate(b.borrow_date)}</td>
-                      <td className="px-4 py-3 text-gray-700">{fmtDate(b.expected_return_date)}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                            overdue
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-green-100 text-green-700"
-                          }`}
-                        >
-                          {overdue ? t("manage.overdue") : t("manage.onTime")}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          onClick={() => setReturnTarget({ id: b.id, game: gameMap[b.game_id] })}
-                          className="px-3 py-1.5 rounded-lg text-white text-xs font-medium btn-gradient transition-all hover:shadow-sm hover:shadow-violet-200"
-                        >
-                          {t("manage.returnButton")}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Mobile cards */}
+            <div className="sm:hidden space-y-3">
+              {active.map((b) => {
+                const overdue = fmtDate(b.expected_return_date) < today;
+                return (
+                  <div key={b.id} className={`bg-white/80 backdrop-blur-sm rounded-xl border p-4 space-y-2 ${overdue ? "border-orange-200" : "border-violet-100"}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="font-medium text-gray-900">{gameMap[b.game_id]?.name}</div>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${overdue ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}>
+                        {overdue ? t("manage.overdue") : t("manage.onTime")}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600">{b.borrower_name} · {b.borrower_student_id}</div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400">{t("manage.expectedReturn")}: {fmtDate(b.expected_return_date)}</span>
+                      <button
+                        onClick={() => setReturnTarget({ id: b.id, game: gameMap[b.game_id] })}
+                        className="px-3 py-1.5 rounded-lg text-white text-xs font-medium btn-gradient transition-all hover:shadow-sm hover:shadow-violet-200"
+                      >
+                        {t("manage.returnButton")}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden sm:block overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl border border-violet-100">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-gradient-to-r from-violet-50 to-fuchsia-50 text-gray-500 uppercase text-xs">
+                  <tr>
+                    <th className="px-4 py-3">{t("manage.game")}</th>
+                    <th className="px-4 py-3">{t("manage.borrower")}</th>
+                    <th className="px-4 py-3">{t("manage.studentId")}</th>
+                    <th className="px-4 py-3 hidden md:table-cell">{t("manage.borrowDate")}</th>
+                    <th className="px-4 py-3">{t("manage.expectedReturn")}</th>
+                    <th className="px-4 py-3">{t("manage.status")}</th>
+                    <th className="px-4 py-3">{t("manage.action")}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {active.map((b) => {
+                    const overdue = fmtDate(b.expected_return_date) < today;
+                    return (
+                      <tr key={b.id} className={overdue ? "bg-orange-50/50" : ""}>
+                        <td className="px-4 py-3 font-medium text-gray-900">
+                          {gameMap[b.game_id]?.name}
+                        </td>
+                        <td className="px-4 py-3 text-gray-700">{b.borrower_name}</td>
+                        <td className="px-4 py-3 text-gray-700">{b.borrower_student_id}</td>
+                        <td className="px-4 py-3 text-gray-700 hidden md:table-cell">{fmtDate(b.borrow_date)}</td>
+                        <td className="px-4 py-3 text-gray-700">{fmtDate(b.expected_return_date)}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                              overdue
+                                ? "bg-orange-100 text-orange-700"
+                                : "bg-green-100 text-green-700"
+                            }`}
+                          >
+                            {overdue ? t("manage.overdue") : t("manage.onTime")}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => setReturnTarget({ id: b.id, game: gameMap[b.game_id] })}
+                            className="px-3 py-1.5 rounded-lg text-white text-xs font-medium btn-gradient transition-all hover:shadow-sm hover:shadow-violet-200"
+                          >
+                            {t("manage.returnButton")}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
 
