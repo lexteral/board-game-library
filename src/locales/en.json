@@ -1,0 +1,116 @@
+{
+  "appName": "Board Game Library",
+  "auth": {
+    "login": "Log In",
+    "register": "Register",
+    "logout": "Log Out",
+    "studentId": "Student ID",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Full Name",
+    "loggingIn": "Logging in...",
+    "registering": "Registering...",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "email": "Email",
+    "emailPlaceholder": "example@email.com",
+    "invalidEmail": "Please enter a valid email address.",
+    "invalidStudentId": "Student ID must be exactly 8 digits.",
+    "passwordTooShort": "Password must be at least 4 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "welcomeBack": "Welcome back,"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "manage": "Manage",
+    "history": "History"
+  },
+  "dashboard": {
+    "title": "Board Games",
+    "searchPlaceholder": "Search games...",
+    "available": "Available",
+    "borrowed": "Borrowed",
+    "availableCount": "{{count}} of {{total}} available",
+    "players": "{{count}} players",
+    "borrowButton": "Borrow",
+    "detailsButton": "View Details",
+    "noResults": "No games match your search."
+  },
+  "borrow": {
+    "title": "Borrow Game",
+    "borrowing": "Borrowing:",
+    "studentName": "Student Name",
+    "studentNamePlaceholder": "Enter full name",
+    "studentId": "Student ID",
+    "studentIdPlaceholder": "8-digit student ID",
+    "borrowDate": "Borrowing Date",
+    "returnDate": "Expected Return Date",
+    "submit": "Confirm Borrow",
+    "cancel": "Cancel",
+    "errors": {
+      "nameRequired": "Student name is required.",
+      "idRequired": "Student ID is required.",
+      "idInvalid": "Student ID must be exactly 8 digits.",
+      "returnDateRequired": "Expected return date is required.",
+      "returnDatePast": "Return date must be after the borrowing date."
+    },
+    "success": "Game borrowed successfully!"
+  },
+  "borrowedInfo": {
+    "title": "Borrowing Details",
+    "borrower": "Borrower",
+    "studentId": "Student ID",
+    "borrowDate": "Borrow Date",
+    "expectedReturn": "Expected Return",
+    "close": "Close"
+  },
+  "return": {
+    "title": "Return Game",
+    "returning": "Returning:",
+    "uploadPhoto": "Upload photo of the returned game",
+    "tapToUpload": "Tap to take or upload photo",
+    "submit": "Submit Return",
+    "submitting": "Submitting...",
+    "cancel": "Cancel",
+    "success": "Return submitted for review!",
+    "errors": {
+      "photoRequired": "Please upload a photo of the returned game.",
+      "invalidFile": "Please select an image file."
+    }
+  },
+  "manage": {
+    "title": "Manage Borrowings",
+    "activeBorrowings": "Active Borrowings",
+    "pendingReturns": "Pending Returns",
+    "game": "Game",
+    "borrower": "Borrower",
+    "studentId": "Student ID",
+    "borrowDate": "Borrow Date",
+    "expectedReturn": "Expected Return",
+    "status": "Status",
+    "action": "Action",
+    "photo": "Photo",
+    "returnButton": "Return",
+    "onTime": "On Time",
+    "overdue": "Overdue",
+    "pendingReturn": "Pending",
+    "approveButton": "Approve",
+    "rejectButton": "Reject",
+    "viewPhoto": "View Photo",
+    "noActive": "No active borrowings.",
+    "noPending": "No returns pending approval.",
+    "returnSuccess": "Return submitted for review!",
+    "approveSuccess": "Return approved!",
+    "rejectSuccess": "Return rejected."
+  },
+  "history": {
+    "title": "Borrowing History",
+    "searchPlaceholder": "Search by name or ID...",
+    "game": "Game",
+    "borrower": "Borrower",
+    "studentId": "Student ID",
+    "borrowDate": "Borrow Date",
+    "returnDate": "Return Date",
+    "noHistory": "No borrowing history yet."
+  }
+}

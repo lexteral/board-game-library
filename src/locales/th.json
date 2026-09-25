@@ -1,0 +1,116 @@
+{
+  "appName": "ห้องสมุดบอร์ดเกม",
+  "auth": {
+    "login": "เข้าสู่ระบบ",
+    "register": "สมัครสมาชิก",
+    "logout": "ออกจากระบบ",
+    "studentId": "รหัสนักศึกษา",
+    "password": "รหัสผ่าน",
+    "confirmPassword": "ยืนยันรหัสผ่าน",
+    "name": "ชื่อ-นามสกุล",
+    "loggingIn": "กำลังเข้าสู่ระบบ...",
+    "registering": "กำลังสมัคร...",
+    "noAccount": "ยังไม่มีบัญชี?",
+    "hasAccount": "มีบัญชีอยู่แล้ว?",
+    "email": "อีเมล",
+    "emailPlaceholder": "example@email.com",
+    "invalidEmail": "กรุณากรอกอีเมลที่ถูกต้อง",
+    "invalidStudentId": "รหัสนักศึกษาต้องเป็นตัวเลข 8 หลัก",
+    "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร",
+    "passwordMismatch": "รหัสผ่านไม่ตรงกัน",
+    "welcomeBack": "ยินดีต้อนรับ"
+  },
+  "nav": {
+    "dashboard": "หน้าหลัก",
+    "manage": "จัดการ",
+    "history": "ประวัติ"
+  },
+  "dashboard": {
+    "title": "บอร์ดเกม",
+    "searchPlaceholder": "ค้นหาเกม...",
+    "available": "ว่าง",
+    "borrowed": "ถูกยืม",
+    "availableCount": "ว่าง {{count}} จาก {{total}} เกม",
+    "players": "{{count}} ผู้เล่น",
+    "borrowButton": "ยืม",
+    "detailsButton": "ดูรายละเอียด",
+    "noResults": "ไม่พบเกมที่ค้นหา"
+  },
+  "borrow": {
+    "title": "ยืมบอร์ดเกม",
+    "borrowing": "กำลังยืม:",
+    "studentName": "ชื่อ-นามสกุล",
+    "studentNamePlaceholder": "กรอกชื่อ-นามสกุล",
+    "studentId": "รหัสนักศึกษา",
+    "studentIdPlaceholder": "รหัสนักศึกษา 8 หลัก",
+    "borrowDate": "วันที่ยืม",
+    "returnDate": "กำหนดคืน",
+    "submit": "ยืนยันการยืม",
+    "cancel": "ยกเลิก",
+    "errors": {
+      "nameRequired": "กรุณากรอกชื่อ-นามสกุล",
+      "idRequired": "กรุณากรอกรหัสนักศึกษา",
+      "idInvalid": "รหัสนักศึกษาต้องเป็นตัวเลข 8 หลัก",
+      "returnDateRequired": "กรุณาเลือกวันกำหนดคืน",
+      "returnDatePast": "วันกำหนดคืนต้องหลังวันที่ยืม"
+    },
+    "success": "ยืมบอร์ดเกมสำเร็จ!"
+  },
+  "borrowedInfo": {
+    "title": "รายละเอียดการยืม",
+    "borrower": "ผู้ยืม",
+    "studentId": "รหัสนักศึกษา",
+    "borrowDate": "วันที่ยืม",
+    "expectedReturn": "กำหนดคืน",
+    "close": "ปิด"
+  },
+  "return": {
+    "title": "คืนบอร์ดเกม",
+    "returning": "กำลังคืน:",
+    "uploadPhoto": "อัพโหลดรูปถ่ายเกมที่คืน",
+    "tapToUpload": "แตะเพื่อถ่ายรูปหรืออัพโหลด",
+    "submit": "ส่งคืน",
+    "submitting": "กำลังส่ง...",
+    "cancel": "ยกเลิก",
+    "success": "ส่งคืนเรียบร้อย รอการตรวจสอบ!",
+    "errors": {
+      "photoRequired": "กรุณาอัพโหลดรูปถ่ายเกมที่คืน",
+      "invalidFile": "กรุณาเลือกไฟล์รูปภาพ"
+    }
+  },
+  "manage": {
+    "title": "จัดการการยืม",
+    "activeBorrowings": "รายการยืมปัจจุบัน",
+    "pendingReturns": "รอตรวจสอบการคืน",
+    "game": "เกม",
+    "borrower": "ผู้ยืม",
+    "studentId": "รหัสนักศึกษา",
+    "borrowDate": "วันที่ยืม",
+    "expectedReturn": "กำหนดคืน",
+    "status": "สถานะ",
+    "action": "ดำเนินการ",
+    "photo": "รูปถ่าย",
+    "returnButton": "คืน",
+    "onTime": "ปกติ",
+    "overdue": "เลยกำหนด",
+    "pendingReturn": "รอตรวจ",
+    "approveButton": "อนุมัติ",
+    "rejectButton": "ปฏิเสธ",
+    "viewPhoto": "ดูรูป",
+    "noActive": "ไม่มีรายการยืมในขณะนี้",
+    "noPending": "ไม่มีรายการรอตรวจสอบ",
+    "returnSuccess": "ส่งคืนเรียบร้อย รอการตรวจสอบ!",
+    "approveSuccess": "อนุมัติการคืนแล้ว!",
+    "rejectSuccess": "ปฏิเสธการคืนแล้ว"
+  },
+  "history": {
+    "title": "ประวัติการยืม",
+    "searchPlaceholder": "ค้นหาด้วยชื่อหรือรหัส...",
+    "game": "เกม",
+    "borrower": "ผู้ยืม",
+    "studentId": "รหัสนักศึกษา",
+    "borrowDate": "วันที่ยืม",
+    "returnDate": "วันที่คืน",
+    "noHistory": "ยังไม่มีประวัติการยืม"
+  }
+}
