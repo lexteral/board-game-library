@@ -40,7 +40,10 @@
     "players": "{{count}} players",
     "borrowButton": "Borrow",
     "detailsButton": "View Details",
-    "noResults": "No games match your search."
+    "noResults": "No games match your search.",
+    "filterDifficulty": "Difficulty",
+    "filterType": "Type",
+    "all": "All"
   },
   "borrow": {
     "title": "Borrow Game",
@@ -181,5 +184,45 @@
     "confirmSuspend": "Suspend {{name}} from borrowing until {{date}}?",
     "suspendedOk": "Borrower suspended.",
     "liftedOk": "Suspension lifted."
+  },
+  "checklist": {
+    "title": "Component checklist",
+    "tickAll": "Tick all",
+    "hint": "Count every piece and tick each item that is complete. Untick anything missing or damaged.",
+    "countUnknown": "count on intake",
+    "found": "Found",
+    "remaining": "{{count}} item(s) not ticked: tell the admin what is missing or damaged.",
+    "allOk": "All components complete.",
+    "notePlaceholder": "What is missing or damaged? (required)",
+    "noteRequired": "Please describe the missing or damaged components.",
+    "allOkShort": "All {{count}} components complete",
+    "missingTitle": "{{count}} component(s) missing or damaged"
+  },
+  "difficulty": {
+    "1": "Easy",
+    "2": "Medium",
+    "3": "Challenging"
+  },
+  "category": {
+    "strategy": "Strategy",
+    "family": "Family",
+    "party": "Party",
+    "card": "Card game",
+    "word": "Word game",
+    "drawing": "Drawing",
+    "deduction": "Social deduction",
+    "conversation": "Conversation",
+    "speed": "Speed & reaction",
+    "storytelling": "Storytelling",
+    "creative": "Creative",
+    "betting": "Betting",
+    "tile": "Tile game",
+    "logic": "Logic",
+    "negotiation": "Negotiation & trading",
+    "puzzle": "Puzzle",
+    "bluffing": "Bluffing",
+    "memory": "Memory",
+    "coop": "Co-operative",
+    "escape": "Escape room"
   }
 }

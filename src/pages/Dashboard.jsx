@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import GAMES from "../data/games";
 import { useAuth } from "../context/AuthContext";
-import GameCard from "../components/GameCard";
+import GameCard, { Stars } from "../components/GameCard";
 import BorrowModal from "../components/BorrowModal";
 import BorrowedInfoModal from "../components/BorrowedInfoModal";
 import { Swash } from "../components/PageTitle";
@@ -13,6 +13,8 @@ export default function Dashboard() {
   const { user, authFetch } = useAuth();
   const suspended = isSuspended(user);
   const [search, setSearch] = useState("");
+  const [level, setLevel] = useState(0);
+  const [category, setCategory] = useState("");
   const [borrowTarget, setBorrowTarget] = useState(null);
   const [detailTarget, setDetailTarget] = useState(null);
   const [toast, setToast] = useState("");
@@ -30,9 +32,17 @@ export default function Dashboard() {
   const borrowingByGame = Object.fromEntries(activeBorrowings.map((b) => [b.game_id, b]));
   const availableCount = GAMES.length - activeBorrowings.length;
 
-  const filtered = GAMES.filter((g) =>
-    g.name.toLowerCase().includes(search.toLowerCase())
+  const allCategories = [...new Set(GAMES.flatMap((g) => g.categories))];
+  const filtered = GAMES.filter(
+    (g) =>
+      g.name.toLowerCase().includes(search.toLowerCase()) &&
+      (!level || g.difficulty === level) &&
+      (!category || g.categories.includes(category))
   );
+  const chip = (active) =>
+    `px-3.5 py-1.5 rounded-full text-sm font-bold border-2 transition-colors whitespace-nowrap ${
+      active ? "bg-gray-900 text-[var(--bg)] border-gray-900" : "border-gray-200 text-gray-600 hover:border-gray-300"
+    }`;
 
   const handleConfirmBorrow = async (data) => {
     try {
@@ -91,6 +101,27 @@ export default function Dashboard() {
       <section className="mb-12 rounded-2xl bg-white border-2 border-gray-100 p-6 sm:p-8">
         <h2 className="headline headline-md mb-5">{t("rules.title")}.</h2>
         <RulesList />
+      </section>
+
+      <section className="mb-8 space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-bold text-gray-500 mr-1">{t("dashboard.filterDifficulty")}</span>
+          <button className={chip(level === 0)} onClick={() => setLevel(0)}>{t("dashboard.all")}</button>
+          {[1, 2, 3].map((n) => (
+            <button key={n} className={`${chip(level === n)} inline-flex items-center gap-1.5`} onClick={() => setLevel(level === n ? 0 : n)}>
+              <Stars level={n} size="text-sm" /> {t(`difficulty.${n}`)}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+          <span className="text-sm font-bold text-gray-500 mr-1 self-center whitespace-nowrap">{t("dashboard.filterType")}</span>
+          <button className={chip(!category)} onClick={() => setCategory("")}>{t("dashboard.all")}</button>
+          {allCategories.map((c) => (
+            <button key={c} className={chip(category === c)} onClick={() => setCategory(category === c ? "" : c)}>
+              {t(`category.${c}`)}
+            </button>
+          ))}
+        </div>
       </section>
 
       {filtered.length === 0 ? (

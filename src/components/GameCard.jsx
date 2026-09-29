@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+export function Stars({ level, size = "text-base" }) {
+  return (
+    <span className={`inline-flex ${size} leading-none tracking-tight`} aria-hidden="true">
+      {[1, 2, 3].map((n) => (
+        <span key={n} className={n <= level ? "text-amber-500" : "text-gray-200"}>★</span>
+      ))}
+    </span>
+  );
+}
+
 const TINTS = ["bg-violet-50", "bg-amber-100", "bg-fuchsia-100", "bg-green-100", "bg-amber-50", "bg-violet-100"];
 
 export default function GameCard({ game, borrowing, onBorrow, onViewDetails, index = 0 }) {
@@ -37,9 +47,19 @@ export default function GameCard({ game, borrowing, onBorrow, onViewDetails, ind
       <div className="px-5 pb-5 pt-2 flex flex-col gap-4 flex-1">
         <div className="flex-1">
           <h3 className="text-lg font-extrabold text-gray-900 leading-snug">{game.name}</h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {t("dashboard.players", { count: game.playerCount })}
-          </p>
+          <div className="flex items-center gap-2 mt-1.5" title={t(`difficulty.${game.difficulty}`)}>
+            <Stars level={game.difficulty} />
+            <span className="text-xs font-bold text-gray-600">{t(`difficulty.${game.difficulty}`)}</span>
+            <span className="text-gray-300">·</span>
+            <span className="text-xs text-gray-500">{t("dashboard.players", { count: game.playerCount })}</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5 mt-2.5">
+            {game.categories.map((c) => (
+              <span key={c} className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                {t(`category.${c}`)}
+              </span>
+            ))}
+          </div>
         </div>
 
         {isBorrowed ? (

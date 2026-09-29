@@ -7,6 +7,7 @@ import { createToken, requireAuth, requireAdmin } from "./auth.js";
 import { sendBorrowConfirmation, sendReturnApprovalConfirmation, sendReturnSubmitted, sendDueReminder } from "./email.js";
 import { sendSms, smsConfigured } from "./sms.js";
 import GAMES from "../src/data/games.js";
+import CHECKLISTS from "../src/data/checklists.js";
 
 const app = express();
 app.use(cors());
@@ -185,6 +186,7 @@ app.get("/api/borrowings/pending", requireAuth, async (req, res) => {
   try {
     const rows = await sql`
       SELECT b.id, b.game_id, b.borrow_date, b.expected_return_date, b.return_photo, b.status,
+             b.return_checklist, b.return_note,
              u.name AS borrower_name, u.student_id AS borrower_student_id
       FROM borrowings b
       JOIN users u ON u.id = b.user_id
@@ -276,14 +278,35 @@ app.post("/api/borrowings", requireAuth, async (req, res) => {
 app.post("/api/borrowings/:id/return", requireAuth, async (req, res) => {
   try {
     const { photo } = req.body;
+    const note = String(req.body.note || "").trim() || null;
 
     if (!photo) {
       return res.status(400).json({ error: "Photo is required" });
     }
 
+    const [target] = await sql`SELECT game_id FROM borrowings WHERE id = ${req.params.id} AND status = 'active'`;
+    if (!target) {
+      return res.status(404).json({ error: "Active borrowing not found" });
+    }
+    const expectedItems = CHECKLISTS[target.game_id] || [];
+    const submitted = Array.isArray(req.body.checklist) ? req.body.checklist : [];
+    if (submitted.length !== expectedItems.length) {
+      return res.status(400).json({ error: "Please complete the component checklist" });
+    }
+    const checklist = expectedItems.map((item, i) => {
+      const s = submitted[i] || {};
+      const ok = s.ok === true;
+      const found = ok ? item.expected : Number.isFinite(s.found) ? Math.max(0, Math.floor(s.found)) : null;
+      return { name: item.name, expected: item.expected, ok, found };
+    });
+    if (checklist.some((c) => !c.ok) && !note) {
+      return res.status(400).json({ error: "Please describe the missing or damaged components" });
+    }
+
     const [borrowing] = await sql`
       UPDATE borrowings
-      SET status = 'pending_return', return_photo = ${photo}
+      SET status = 'pending_return', return_photo = ${photo},
+          return_checklist = ${JSON.stringify(checklist)}::jsonb, return_note = ${note}
       WHERE id = ${req.params.id} AND status = 'active'
       RETURNING id, game_id, user_id, status
     `;
@@ -348,7 +371,7 @@ app.post("/api/borrowings/:id/reject", requireAuth, requireAdmin, async (req, re
   try {
     const [borrowing] = await sql`
       UPDATE borrowings
-      SET status = 'active', return_photo = NULL
+      SET status = 'active', return_photo = NULL, return_checklist = NULL, return_note = NULL
       WHERE id = ${req.params.id} AND status = 'pending_return'
       RETURNING id, game_id, status
     `;

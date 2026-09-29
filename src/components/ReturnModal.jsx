@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import CHECKLISTS, { CHECKLIST_NOTES } from "../data/checklists";
 
 export default function ReturnModal({ game, onConfirm, onClose }) {
   const { t } = useTranslation();
@@ -8,6 +9,15 @@ export default function ReturnModal({ game, onConfirm, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fileRef = useRef();
+  const [items, setItems] = useState(() =>
+    (CHECKLISTS[game.id] || []).map((i) => ({ ...i, ok: false, found: "" }))
+  );
+  const [note, setNote] = useState("");
+  const missing = items.filter((i) => !i.ok);
+  const setItem = (idx, patch) => {
+    setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
+    setError("");
+  };
 
   function handleFile(e) {
     const file = e.target.files?.[0];
@@ -48,9 +58,19 @@ export default function ReturnModal({ game, onConfirm, onClose }) {
       setError(t("return.errors.photoRequired"));
       return;
     }
+    if (missing.length > 0 && !note.trim()) {
+      setError(t("checklist.noteRequired"));
+      return;
+    }
     setLoading(true);
     try {
-      await onConfirm(photo);
+      await onConfirm({
+        photo,
+        checklist: items.map(({ name, expected, ok, found }) => ({
+          name, expected, ok, found: ok ? expected : found === "" ? null : Number(found),
+        })),
+        note: note.trim(),
+      });
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -60,7 +80,7 @@ export default function ReturnModal({ game, onConfirm, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl shadow-violet-200/30 w-full max-w-md mx-4 p-6 border border-violet-100"
+        className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl shadow-violet-200/30 w-full max-w-lg mx-4 p-6 border border-violet-100 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="headline text-2xl mb-1">{t("return.title")}</h2>
@@ -103,6 +123,69 @@ export default function ReturnModal({ game, onConfirm, onClose }) {
               className="hidden"
             />
           </div>
+
+          {items.length > 0 && (
+            <div className="rounded-xl border-2 border-gray-100 p-4">
+              <div className="flex items-center justify-between gap-3 mb-1">
+                <div className="font-extrabold text-gray-900">{t("checklist.title")}</div>
+                <button
+                  type="button"
+                  onClick={() => setItems((prev) => prev.map((i) => ({ ...i, ok: true })))}
+                  className="text-xs font-bold text-violet-600 hover:underline whitespace-nowrap"
+                >
+                  {t("checklist.tickAll")}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mb-3">{t("checklist.hint")}</p>
+              {CHECKLIST_NOTES[game.id] && (
+                <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 mb-3">{CHECKLIST_NOTES[game.id]}</p>
+              )}
+              <ul className="divide-y divide-gray-100">
+                {items.map((it, idx) => (
+                  <li key={idx} className="py-2">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={it.ok}
+                        onChange={(e) => setItem(idx, { ok: e.target.checked })}
+                        className="w-5 h-5 accent-[var(--primary)] shrink-0"
+                      />
+                      <span className={`flex-1 text-sm ${it.ok ? "text-gray-900" : "text-gray-700"}`}>{it.name}</span>
+                      <span className="text-sm font-bold text-gray-500 tabular-nums">
+                        {it.expected != null ? `× ${it.expected}` : t("checklist.countUnknown")}
+                      </span>
+                    </label>
+                    {!it.ok && it.expected != null && (
+                      <div className="flex items-center gap-2 mt-1.5 ml-8">
+                        <span className="text-xs text-gray-500">{t("checklist.found")}</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max={it.expected}
+                          value={it.found}
+                          onChange={(e) => setItem(idx, { found: e.target.value })}
+                          className="input !w-20 !py-1 !px-2 text-sm"
+                        />
+                        <span className="text-xs text-gray-400">/ {it.expected}</span>
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <div className={`mt-3 text-sm font-bold ${missing.length ? "text-fuchsia-600" : "text-green-700"}`}>
+                {missing.length ? t("checklist.remaining", { count: missing.length }) : t("checklist.allOk")}
+              </div>
+              {missing.length > 0 && (
+                <textarea
+                  value={note}
+                  onChange={(e) => { setNote(e.target.value); setError(""); }}
+                  placeholder={t("checklist.notePlaceholder")}
+                  rows={2}
+                  className="input mt-2 text-sm"
+                />
+              )}
+            </div>
+          )}
 
           {error && (
             <div className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</div>

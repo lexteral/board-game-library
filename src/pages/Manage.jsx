@@ -6,6 +6,28 @@ import { useAuth } from "../context/AuthContext";
 import ReturnModal from "../components/ReturnModal";
 import PhotoModal from "../components/PhotoModal";
 
+function ChecklistSummary({ checklist, note, t }) {
+  if (!Array.isArray(checklist)) return null;
+  const missing = checklist.filter((c) => !c.ok);
+  if (missing.length === 0) {
+    return <div className="text-xs font-bold text-green-700 mt-1">✓ {t("checklist.allOkShort", { count: checklist.length })}</div>;
+  }
+  return (
+    <div className="mt-1.5 text-xs rounded-lg bg-fuchsia-50 border border-fuchsia-100 px-2.5 py-2">
+      <div className="font-bold text-fuchsia-700 mb-1">{t("checklist.missingTitle", { count: missing.length })}</div>
+      <ul className="space-y-0.5 text-gray-700">
+        {missing.map((m) => (
+          <li key={m.name}>
+            • {m.name}
+            {m.expected != null && <span className="text-gray-500"> ({m.found ?? "?"}/{m.expected})</span>}
+          </li>
+        ))}
+      </ul>
+      {note && <div className="mt-1.5 text-gray-600 italic">“{note}”</div>}
+    </div>
+  );
+}
+
 export default function Manage() {
   const { t } = useTranslation();
   const { user, authFetch } = useAuth();
@@ -46,11 +68,11 @@ export default function Manage() {
     setTimeout(() => setToast(""), 3000);
   };
 
-  const handleReturn = async (photo) => {
+  const handleReturn = async (payload) => {
     const res = await authFetch(`/api/borrowings/${returnTarget.id}/return`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ photo }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       const err = await res.json();
@@ -86,7 +108,10 @@ export default function Manage() {
           <div className="sm:hidden space-y-3">
             {pending.map((b) => (
               <div key={b.id} className="bg-white/80 backdrop-blur-sm rounded-xl border border-amber-200/60 p-4 space-y-3">
-                <div className="font-medium text-gray-900">{gameMap[b.game_id]?.name}</div>
+                <div>
+                  <div className="font-medium text-gray-900">{gameMap[b.game_id]?.name}</div>
+                  <ChecklistSummary checklist={b.return_checklist} note={b.return_note} t={t} />
+                </div>
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>{b.borrower_name}</span>
                   <span className="text-gray-400">{b.borrower_student_id}</span>
@@ -135,9 +160,10 @@ export default function Manage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {pending.map((b) => (
-                  <tr key={b.id} className="bg-amber-50/20">
-                    <td className="px-4 py-3 font-medium text-gray-900">
+                  <tr key={b.id} className="bg-amber-50/20 align-top">
+                    <td className="px-4 py-3 font-medium text-gray-900 max-w-xs">
                       {gameMap[b.game_id]?.name}
+                      <ChecklistSummary checklist={b.return_checklist} note={b.return_note} t={t} />
                     </td>
                     <td className="px-4 py-3 text-gray-700">{b.borrower_name}</td>
                     <td className="px-4 py-3 text-gray-700">{b.borrower_student_id}</td>
