@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import LanguageToggle from "../components/LanguageToggle";
+import ThemeToggle from "../components/ThemeToggle";
+import PageTitle from "../components/PageTitle";
 
 export default function Login() {
   const { t, i18n } = useTranslation();
@@ -28,25 +30,24 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen aurora-bg flex flex-col items-center justify-center px-4">
-      <div className="absolute top-4 right-4 z-10">
+    <div className="min-h-screen aurora-bg flex flex-col items-center justify-center px-4 py-16" data-world="blue">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <ThemeToggle />
         <LanguageToggle />
       </div>
 
-      <div className="w-full max-w-sm relative z-10">
+      <div className="w-full max-w-sm relative z-10 pop-in">
         <div className="text-center mb-8">
-          <span className="text-5xl">🎲</span>
-          <h1 className="mt-3 text-2xl font-bold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">
-            {t("appName")}
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <span className="wiggle inline-grid place-items-center w-16 h-16 rounded-3xl bg-amber-100 text-4xl">🎲</span>
+          <PageTitle className="mt-5">{t("appName")}</PageTitle>
+          <p className="text-sm text-gray-500 mt-4">
             {i18n.language === "th"
               ? "สาขาวิชาการสอนภาษาอังกฤษ สำนักวิชาศึกษาศาสตร์"
               : "English Language Teaching, School of Education"}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-md rounded-xl border border-violet-100 p-6 space-y-4 shadow-lg shadow-violet-100/50">
+        <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-md rounded-2xl border-2 border-gray-100 p-7 space-y-4 shadow-xl shadow-violet-100/40">
           <h2 className="text-lg font-semibold text-gray-900">{t("auth.login")}</h2>
 
           {error && (

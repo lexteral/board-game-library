@@ -8,28 +8,21 @@ export default function LanguageToggle() {
     localStorage.setItem("lang", lang);
   };
 
+  const btn = (lang, label) => (
+    <button
+      onClick={() => setLang(lang)}
+      className={`px-2.5 py-1 rounded-full transition-all ${
+        i18n.language === lang ? "bg-violet-600 text-white" : "text-gray-500 hover:text-gray-900"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
-    <div className="flex items-center rounded-full border border-violet-200 overflow-hidden text-xs font-semibold">
-      <button
-        onClick={() => setLang("th")}
-        className={`px-2.5 py-1.5 transition-all ${
-          i18n.language === "th"
-            ? "bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white"
-            : "bg-white text-gray-400 hover:bg-violet-50 hover:text-violet-500"
-        }`}
-      >
-        TH
-      </button>
-      <button
-        onClick={() => setLang("en")}
-        className={`px-2.5 py-1.5 transition-all ${
-          i18n.language === "en"
-            ? "bg-gradient-to-r from-fuchsia-500 to-amber-400 text-white"
-            : "bg-white text-gray-400 hover:bg-violet-50 hover:text-violet-500"
-        }`}
-      >
-        EN
-      </button>
+    <div className="flex items-center gap-0.5 p-0.5 rounded-full border-2 border-gray-200 text-xs font-bold">
+      {btn("th", "TH")}
+      {btn("en", "EN")}
     </div>
   );
 }

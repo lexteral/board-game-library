@@ -27,6 +27,9 @@
   },
   "dashboard": {
     "title": "Board Games",
+    "heroLine1": "pick a game",
+    "heroLine2": "play together",
+    "heroLede": "Borrow a board game from the department shelf, bring your friends, and practise English while you play.",
     "searchPlaceholder": "Search games...",
     "available": "Available",
     "borrowed": "Borrowed",

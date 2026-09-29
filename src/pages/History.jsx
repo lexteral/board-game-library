@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import GAMES from "../data/games";
+import PageTitle from "../components/PageTitle";
 import { useAuth } from "../context/AuthContext";
 
 export default function History() {
@@ -29,8 +30,8 @@ export default function History() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">{t("history.title")}</h1>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
+        <PageTitle>{t("history.title")}</PageTitle>
         <input
           type="text"
           value={search}

@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import GameCard from "../components/GameCard";
 import BorrowModal from "../components/BorrowModal";
 import BorrowedInfoModal from "../components/BorrowedInfoModal";
+import { Swash } from "../components/PageTitle";
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -54,28 +55,35 @@ export default function Dashboard() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">{t("dashboard.title")}</h1>
-          <p className="text-sm text-gray-500 mt-1">
+      <section className="mb-12 sm:mb-16">
+        <h1 className="headline headline-xl">
+          {t("dashboard.heroLine1")}.
+          <br />
+          <Swash>{t("dashboard.heroLine2")}</Swash>.
+        </h1>
+        <p className="lede mt-6">{t("dashboard.heroLede")}</p>
+        <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t("dashboard.searchPlaceholder")}
+            className="input sm:max-w-sm !rounded-full"
+          />
+          <span className="inline-flex items-center gap-2 self-start px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-bold">
+            <span className="w-2 h-2 rounded-full bg-green-600"></span>
             {t("dashboard.availableCount", { count: availableCount, total: GAMES.length })}
-          </p>
+          </span>
         </div>
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t("dashboard.searchPlaceholder")}
-          className="input w-full sm:w-72"
-        />
-      </div>
+      </section>
 
       {filtered.length === 0 ? (
         <p className="text-center text-gray-400 py-12">{t("dashboard.noResults")}</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((game) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((game, i) => (
             <GameCard
+              index={i}
               key={game.id}
               game={game}
               borrowing={borrowingByGame[game.id]}

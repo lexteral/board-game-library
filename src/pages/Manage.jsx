@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import GAMES from "../data/games";
+import PageTitle from "../components/PageTitle";
 import { useAuth } from "../context/AuthContext";
 import ReturnModal from "../components/ReturnModal";
 import PhotoModal from "../components/PhotoModal";
@@ -75,12 +76,10 @@ export default function Manage() {
       {/* Pending Returns Section */}
       {pending.length > 0 && (
         <section>
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-            <span className="bg-gradient-to-r from-amber-500 to-fuchsia-500 bg-clip-text text-transparent">
-              {t("manage.pendingReturns")}
-            </span>
-            <span className="text-sm font-normal text-gray-400">({pending.length})</span>
+          <h2 className="headline headline-md mb-6 flex items-center gap-3">
+            <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+            {t("manage.pendingReturns")}.
+            <span className="text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-600">{pending.length}</span>
           </h2>
 
           {/* Mobile cards */}
@@ -180,11 +179,9 @@ export default function Manage() {
 
       {/* Active Borrowings Section */}
       <section>
-        <h2 className="text-xl font-bold mb-4">
-          <span className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">
-            {pending.length > 0 ? t("manage.activeBorrowings") : t("manage.title")}
-          </span>
-        </h2>
+        <PageTitle className="mb-8">
+          {pending.length > 0 ? t("manage.activeBorrowings") : t("manage.title")}
+        </PageTitle>
 
         {active.length === 0 ? (
           <p className="text-center text-gray-400 py-12">{t("manage.noActive")}</p>

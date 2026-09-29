@@ -1,76 +1,70 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import LanguageToggle from "./LanguageToggle";
+import ThemeToggle from "./ThemeToggle";
+
+const WORLDS = { "/": "blue", "/manage": "orange", "/history": "pink", "/profile": "green" };
 
 export default function Layout() {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
+  const { pathname } = useLocation();
 
   const linkClass = ({ isActive }) =>
-    `px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+    `px-4 py-1.5 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
       isActive
-        ? "bg-gradient-to-r from-violet-500/15 via-fuchsia-500/10 to-amber-500/10 text-violet-700 ring-1 ring-violet-200"
-        : "text-gray-500 hover:bg-white/60 hover:text-gray-900"
+        ? "bg-gray-900 text-[var(--bg)]"
+        : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
     }`;
 
   return (
-    <div className="min-h-screen aurora-bg">
-      <header className="bg-white/80 backdrop-blur-md border-b border-violet-100 sticky top-0 z-30">
-        <div className="h-0.5 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-400"></div>
-        <div className="max-w-6xl mx-auto px-4 py-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-2xl shrink-0" role="img" aria-label="dice">
+    <div className="min-h-screen aurora-bg" data-world={WORLDS[pathname] || "periwinkle"}>
+      <header className="bg-white/80 backdrop-blur-md border-b-2 border-gray-100 sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <NavLink to="/" className="flex items-center gap-2.5 min-w-0">
+              <span className="wiggle text-2xl shrink-0 w-10 h-10 rounded-2xl bg-amber-100 grid place-items-center" role="img" aria-label="dice">
                 🎲
               </span>
               <div className="min-w-0">
-                <span className="font-bold text-base bg-gradient-to-r from-violet-600 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent block leading-tight">
-                  {t("appName")}
-                </span>
-                <span className="text-xs text-gray-500 block leading-tight hidden sm:block">
+                <span className="headline text-lg block">{t("appName")}.</span>
+                <span className="text-xs text-gray-500 leading-tight hidden sm:block truncate">
                   {i18n.language === "th"
                     ? "สาขาวิชาการสอนภาษาอังกฤษ สำนักวิชาศึกษาศาสตร์"
                     : "English Language Teaching, School of Education"}
                 </span>
               </div>
-            </div>
+            </NavLink>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
+              <ThemeToggle />
               <LanguageToggle />
               <NavLink
                 to="/profile"
-                className="text-xs text-gray-500 hidden sm:inline hover:text-violet-600 transition-colors"
+                className="text-sm font-semibold text-gray-600 hidden md:inline hover:text-violet-600 transition-colors"
               >
                 {user?.name}
               </NavLink>
               <button
                 onClick={logout}
-                className="px-2 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors"
+                className="px-3 py-1.5 rounded-full border-2 border-gray-200 text-xs font-bold text-gray-600 hover:text-fuchsia-600 hover:border-fuchsia-200 hover:bg-fuchsia-50 transition-colors"
               >
                 {t("auth.logout")}
               </button>
             </div>
           </div>
 
-          <nav className="flex items-center gap-1 mt-2 -mx-1 overflow-x-auto scrollbar-hide">
-            <NavLink to="/" end className={linkClass}>
-              {t("nav.dashboard")}
-            </NavLink>
-            <NavLink to="/manage" className={linkClass}>
-              {t("nav.manage")}
-            </NavLink>
-            <NavLink to="/history" className={linkClass}>
-              {t("nav.history")}
-            </NavLink>
-            <NavLink to="/profile" className={linkClass}>
-              {t("profile.title")}
-            </NavLink>
+          <nav className="flex items-center gap-1 mt-3 -mx-1 overflow-x-auto scrollbar-hide">
+            <NavLink to="/" end className={linkClass}>{t("nav.dashboard")}</NavLink>
+            <NavLink to="/manage" className={linkClass}>{t("nav.manage")}</NavLink>
+            <NavLink to="/history" className={linkClass}>{t("nav.history")}</NavLink>
+            <NavLink to="/profile" className={linkClass}>{t("profile.title")}</NavLink>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 relative z-10">
+      <main className="max-w-6xl mx-auto px-4 py-10 sm:py-14 relative z-10">
         <Outlet />
       </main>
     </div>

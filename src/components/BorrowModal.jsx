@@ -29,7 +29,7 @@ export default function BorrowModal({ game, onConfirm, onClose }) {
         className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl shadow-violet-200/30 w-full max-w-md mx-4 p-6 border border-violet-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent mb-1">{t("borrow.title")}</h2>
+        <h2 className="headline text-2xl mb-1">{t("borrow.title")}</h2>
         <p className="text-sm text-gray-500 mb-5">
           {t("borrow.borrowing")} <span className="font-medium text-gray-700">{game.name}</span>
         </p>

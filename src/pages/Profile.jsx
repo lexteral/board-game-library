@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import PageTitle from "../components/PageTitle";
 import { useAuth } from "../context/AuthContext";
 
 export default function Profile() {
@@ -87,11 +88,9 @@ export default function Profile() {
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-fuchsia-500 to-amber-500 bg-clip-text text-transparent">
-        {t("profile.title")}
-      </h1>
+      <PageTitle className="mb-4">{t("profile.title")}</PageTitle>
 
-      <form onSubmit={handleProfileSubmit} className="bg-white/80 backdrop-blur-md rounded-xl border border-violet-100 p-6 space-y-4 shadow-lg shadow-violet-100/50">
+      <form onSubmit={handleProfileSubmit} className="bg-white/80 backdrop-blur-md rounded-2xl border-2 border-gray-100 p-7 space-y-4 shadow-xl shadow-violet-100/40">
         <h2 className="text-lg font-semibold text-gray-900">{t("profile.editInfo")}</h2>
 
         {profileMsg && <div className="text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2">{profileMsg}</div>}
@@ -139,7 +138,7 @@ export default function Profile() {
         </button>
       </form>
 
-      <form onSubmit={handlePasswordSubmit} className="bg-white/80 backdrop-blur-md rounded-xl border border-violet-100 p-6 space-y-4 shadow-lg shadow-violet-100/50">
+      <form onSubmit={handlePasswordSubmit} className="bg-white/80 backdrop-blur-md rounded-2xl border-2 border-gray-100 p-7 space-y-4 shadow-xl shadow-violet-100/40">
         <h2 className="text-lg font-semibold text-gray-900">{t("profile.changePassword")}</h2>
 
         {pwMsg && <div className="text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2">{pwMsg}</div>}
