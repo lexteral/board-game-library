@@ -6,10 +6,12 @@ import GameCard from "../components/GameCard";
 import BorrowModal from "../components/BorrowModal";
 import BorrowedInfoModal from "../components/BorrowedInfoModal";
 import { Swash } from "../components/PageTitle";
+import RulesList, { isSuspended } from "../components/RulesList";
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const { authFetch } = useAuth();
+  const { user, authFetch } = useAuth();
+  const suspended = isSuspended(user);
   const [search, setSearch] = useState("");
   const [borrowTarget, setBorrowTarget] = useState(null);
   const [detailTarget, setDetailTarget] = useState(null);
@@ -77,6 +79,20 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {suspended && (
+        <div className="mb-8 rounded-2xl border-2 border-fuchsia-200 bg-fuchsia-50 px-5 py-4">
+          <div className="font-extrabold text-fuchsia-700">
+            {t("rules.suspendedTitle", { date: String(user.suspendedUntil).slice(0, 10) })}
+          </div>
+          {user.suspensionReason && <div className="text-sm text-gray-600 mt-1">{t("rules.reason")}: {user.suspensionReason}</div>}
+        </div>
+      )}
+
+      <section className="mb-12 rounded-2xl bg-white border-2 border-gray-100 p-6 sm:p-8">
+        <h2 className="headline headline-md mb-5">{t("rules.title")}.</h2>
+        <RulesList />
+      </section>
+
       {filtered.length === 0 ? (
         <p className="text-center text-gray-400 py-12">{t("dashboard.noResults")}</p>
       ) : (
@@ -87,7 +103,14 @@ export default function Dashboard() {
               key={game.id}
               game={game}
               borrowing={borrowingByGame[game.id]}
-              onBorrow={setBorrowTarget}
+              onBorrow={(g) => {
+                if (suspended) {
+                  setToast(t("rules.suspendedTitle", { date: String(user.suspendedUntil).slice(0, 10) }));
+                  setTimeout(() => setToast(""), 3500);
+                } else {
+                  setBorrowTarget(g);
+                }
+              }}
               onViewDetails={(g, b) => setDetailTarget({ game: g, borrowing: b })}
             />
           ))}

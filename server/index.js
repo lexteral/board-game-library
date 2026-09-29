@@ -16,7 +16,10 @@ const normalizePhone = (p) => String(p || "").replace(/[\s-]/g, "");
 const PHONE_RE = /^0\d{9}$/;
 
 function userJson(u) {
-  return { id: u.id, name: u.name, studentId: u.student_id, email: u.email, phone: u.phone, role: u.role };
+  return {
+    id: u.id, name: u.name, studentId: u.student_id, email: u.email, phone: u.phone, role: u.role,
+    suspendedUntil: u.suspended_until || null, suspensionReason: u.suspension_reason || null,
+  };
 }
 
 // ── Auth routes ──────────────────────────────────────────────
@@ -87,7 +90,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   try {
-    const [user] = await sql`SELECT id, name, student_id, email, phone, role FROM users WHERE id = ${req.user.id}`;
+    const [user] = await sql`SELECT id, name, student_id, email, phone, role, suspension_reason, CASE WHEN suspended_until >= (NOW() AT TIME ZONE 'Asia/Bangkok')::date THEN suspended_until END AS suspended_until FROM users WHERE id = ${req.user.id}`;
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(userJson(user));
   } catch (err) {
@@ -214,10 +217,24 @@ app.get("/api/borrowings/history", requireAuth, async (req, res) => {
 
 app.post("/api/borrowings", requireAuth, async (req, res) => {
   try {
-    const { gameId, expectedReturnDate } = req.body;
+    const { gameId, expectedReturnDate, acceptRules } = req.body;
 
     if (!gameId || !expectedReturnDate) {
       return res.status(400).json({ error: "gameId and expectedReturnDate are required" });
+    }
+    if (acceptRules !== true) {
+      return res.status(400).json({ error: "You must check the game pieces and accept the borrowing rules" });
+    }
+
+    const [me] = await sql`
+      SELECT suspended_until FROM users
+      WHERE id = ${req.user.id} AND suspended_until >= (NOW() AT TIME ZONE 'Asia/Bangkok')::date
+    `;
+    if (me) {
+      return res.status(403).json({
+        code: "SUSPENDED",
+        error: `Your borrowing privileges are suspended until ${String(me.suspended_until).slice(0, 10)}`,
+      });
     }
 
     const existing = await sql`
@@ -228,8 +245,8 @@ app.post("/api/borrowings", requireAuth, async (req, res) => {
     }
 
     const [borrowing] = await sql`
-      INSERT INTO borrowings (game_id, user_id, expected_return_date)
-      VALUES (${gameId}, ${req.user.id}, ${expectedReturnDate})
+      INSERT INTO borrowings (game_id, user_id, expected_return_date, rules_accepted_at)
+      VALUES (${gameId}, ${req.user.id}, ${expectedReturnDate}, NOW())
       RETURNING id, game_id, borrow_date, expected_return_date, status
     `;
 
@@ -373,7 +390,8 @@ app.get("/api/admin/games-status", requireAuth, requireAdmin, async (req, res) =
 app.get("/api/admin/borrowers", requireAuth, requireAdmin, async (req, res) => {
   try {
     const borrowers = await sql`
-      SELECT u.id, u.name, u.student_id, u.phone, u.email,
+      SELECT u.id, u.name, u.student_id, u.phone, u.email, u.suspension_reason,
+             CASE WHEN u.suspended_until >= (NOW() AT TIME ZONE 'Asia/Bangkok')::date THEN u.suspended_until END AS suspended_until,
              COUNT(b.id)::int AS total_loans,
              (COUNT(b.id) FILTER (WHERE b.status IN ('active', 'pending_return')))::int AS active_loans,
              ROUND(AVG(b.returned_date - b.borrow_date) FILTER (WHERE b.status = 'returned'), 1) AS avg_days,
@@ -514,6 +532,41 @@ app.post("/api/admin/reminders/run", requireAuth, requireAdmin, async (req, res)
   } catch (err) {
     console.error("Manual reminders error:", err);
     res.status(500).json({ error: "Reminder run failed" });
+  }
+});
+
+app.post("/api/admin/users/:id/suspend", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const until = String(req.body.until || "");
+    const reason = String(req.body.reason || "").trim() || null;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(until)) {
+      return res.status(400).json({ error: "A valid end date is required" });
+    }
+    const [user] = await sql`
+      UPDATE users SET suspended_until = ${until}, suspension_reason = ${reason}
+      WHERE id = ${req.params.id} AND role <> 'admin'
+      RETURNING id, suspended_until, suspension_reason
+    `;
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
+  } catch (err) {
+    console.error("Suspend error:", err);
+    res.status(500).json({ error: "Failed to suspend user" });
+  }
+});
+
+app.delete("/api/admin/users/:id/suspend", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const [user] = await sql`
+      UPDATE users SET suspended_until = NULL, suspension_reason = NULL
+      WHERE id = ${req.params.id}
+      RETURNING id
+    `;
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json({ lifted: true });
+  } catch (err) {
+    console.error("Lift suspension error:", err);
+    res.status(500).json({ error: "Failed to lift suspension" });
   }
 });
 

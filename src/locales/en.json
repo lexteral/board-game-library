@@ -162,5 +162,24 @@
     "returnedLate": "Returned late",
     "returnedOnTime": "Returned on time",
     "borrowing": "Borrowing"
+  },
+  "rules": {
+    "title": "Borrowing rules",
+    "r1": "Check the game before you borrow and when you return it: every piece, token and card must be complete and in good condition.",
+    "r2": "Games may only be played at the location designated by the department.",
+    "r3": "If a borrower does not take care of a game or loses any piece, they cannot borrow any game for 1 semester.",
+    "accept": "I have checked that all pieces, tokens and cards are complete, and I accept the borrowing rules.",
+    "mustAccept": "Please check the game pieces and accept the rules before borrowing.",
+    "suspendedTitle": "Your borrowing privileges are suspended until {{date}}.",
+    "suspendedUntilShort": "Suspended until {{date}}",
+    "suspendedBadge": "Suspended",
+    "reason": "Reason",
+    "defaultReason": "Lost or damaged game pieces",
+    "suspendTitle": "Suspend borrowing (default: 1 semester)",
+    "suspend": "Suspend",
+    "lift": "Lift suspension",
+    "confirmSuspend": "Suspend {{name}} from borrowing until {{date}}?",
+    "suspendedOk": "Borrower suspended.",
+    "liftedOk": "Suspension lifted."
   }
 }

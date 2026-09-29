@@ -35,6 +35,9 @@ export async function initSchema() {
 
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255)`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20)`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended_until DATE`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS suspension_reason TEXT`;
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS rules_accepted_at TIMESTAMPTZ`;
 
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS due_soon_sent BOOLEAN DEFAULT FALSE`;
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS last_overdue_notice DATE`;

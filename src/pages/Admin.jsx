@@ -6,6 +6,64 @@ import { useAuth } from "../context/AuthContext";
 
 const fmtDate = (d) => (d ? String(d).slice(0, 10) : "–");
 
+function oneSemesterFromToday() {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 4);
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
+}
+
+function SuspendPanel({ user, onDone, authFetch, t }) {
+  const [until, setUntil] = useState(oneSemesterFromToday);
+  const [reason, setReason] = useState(t("rules.defaultReason"));
+  const [busy, setBusy] = useState(false);
+
+  const call = async (method, body) => {
+    setBusy(true);
+    try {
+      const res = await authFetch(`/api/admin/users/${user.id}/suspend`, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await res.json();
+      onDone(res.ok ? (method === "POST" ? t("rules.suspendedOk") : t("rules.liftedOk")) : data.error);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (user.suspended_until) {
+    return (
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl bg-fuchsia-50 border-2 border-fuchsia-100 px-4 py-3 mb-3">
+        <div className="text-sm">
+          <div className="font-bold text-fuchsia-700">{t("rules.suspendedUntilShort", { date: fmtDate(user.suspended_until) })}</div>
+          {user.suspension_reason && <div className="text-gray-600">{t("rules.reason")}: {user.suspension_reason}</div>}
+        </div>
+        <button onClick={() => call("DELETE")} disabled={busy} className="self-start px-4 py-1.5 rounded-full text-xs font-bold border-2 border-gray-200 text-gray-700 hover:bg-gray-100 disabled:opacity-50">
+          {t("rules.lift")}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl bg-gray-50 border-2 border-gray-100 px-4 py-3 mb-3">
+      <div className="text-sm font-bold text-gray-900 mb-2">{t("rules.suspendTitle")}</div>
+      <div className="flex flex-col sm:flex-row gap-2">
+        <input type="date" value={until} onChange={(e) => setUntil(e.target.value)} className="input sm:!w-44 !py-1.5 text-sm" />
+        <input type="text" value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("rules.reason")} className="input !py-1.5 text-sm flex-1" />
+        <button
+          onClick={() => { if (window.confirm(t("rules.confirmSuspend", { name: user.name, date: until }))) call("POST", { until, reason }); }}
+          disabled={busy || !until}
+          className="px-4 py-1.5 rounded-full text-xs font-bold bg-fuchsia-500 text-white hover:bg-fuchsia-600 disabled:opacity-50 whitespace-nowrap"
+        >
+          {t("rules.suspend")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Stat({ label, value, tone }) {
   return (
     <div className={`rounded-2xl p-5 ${tone}`}>
@@ -205,7 +263,10 @@ export default function Admin() {
                   className="w-full text-left p-4 sm:p-5 flex flex-col md:flex-row md:items-center gap-3 md:gap-6 hover:bg-gray-50 transition-colors"
                 >
                   <div className="md:w-64 shrink-0">
-                    <div className="font-extrabold text-gray-900">{u.name}</div>
+                    <div className="font-extrabold text-gray-900 flex items-center gap-2 flex-wrap">
+                      {u.name}
+                      {u.suspended_until && <Badge tone="bg-fuchsia-500 text-white">{t("rules.suspendedBadge")}</Badge>}
+                    </div>
                     <div className="text-xs text-gray-500 mt-0.5">{u.student_id}{u.phone ? ` · ${u.phone}` : ""}</div>
                   </div>
                   <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
@@ -219,6 +280,7 @@ export default function Admin() {
 
                 {open && (
                   <div className="border-t-2 border-gray-100 px-4 sm:px-5 py-3">
+                    <SuspendPanel user={u} authFetch={authFetch} t={t} onDone={(msg) => { showToast(msg); load(); }} />
                     {loans.length === 0 ? (
                       <p className="text-sm text-gray-400 py-2">{t("admin.noLoans")}</p>
                     ) : (
