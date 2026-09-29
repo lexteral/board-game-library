@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import LanguageToggle from "./LanguageToggle";
 import ThemeToggle from "./ThemeToggle";
 
-const WORLDS = { "/": "blue", "/manage": "orange", "/history": "pink", "/profile": "green" };
+const WORLDS = { "/": "blue", "/manage": "orange", "/history": "pink", "/profile": "green", "/admin": "apricot" };
 
 export default function Layout() {
   const { t, i18n } = useTranslation();
@@ -60,6 +60,9 @@ export default function Layout() {
             <NavLink to="/manage" className={linkClass}>{t("nav.manage")}</NavLink>
             <NavLink to="/history" className={linkClass}>{t("nav.history")}</NavLink>
             <NavLink to="/profile" className={linkClass}>{t("profile.title")}</NavLink>
+            {user?.role === "admin" && (
+              <NavLink to="/admin" className={linkClass}>{t("nav.admin")}</NavLink>
+            )}
           </nav>
         </div>
       </header>

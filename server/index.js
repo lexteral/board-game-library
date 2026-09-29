@@ -326,6 +326,180 @@ app.post("/api/borrowings/:id/reject", requireAuth, requireAdmin, async (req, re
   }
 });
 
+// ── Admin: status overview ───────────────────────────────────
+
+app.get("/api/admin/games-status", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const current = await sql`
+      SELECT b.id, b.game_id, b.borrow_date, b.expected_return_date, b.status, b.last_sms_at,
+             u.name AS borrower_name, u.student_id AS borrower_student_id, u.phone, u.email,
+             ((NOW() AT TIME ZONE 'Asia/Bangkok')::date - b.borrow_date) AS days_borrowed,
+             GREATEST((NOW() AT TIME ZONE 'Asia/Bangkok')::date - b.expected_return_date, 0) AS days_overdue
+      FROM borrowings b
+      JOIN users u ON u.id = b.user_id
+      WHERE b.status IN ('active', 'pending_return')
+    `;
+    const counts = await sql`
+      SELECT game_id, COUNT(*)::int AS total FROM borrowings GROUP BY game_id
+    `;
+    res.json({ current, counts });
+  } catch (err) {
+    console.error("Games status error:", err);
+    res.status(500).json({ error: "Failed to fetch game status" });
+  }
+});
+
+app.get("/api/admin/borrowers", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const borrowers = await sql`
+      SELECT u.id, u.name, u.student_id, u.phone, u.email,
+             COUNT(b.id)::int AS total_loans,
+             (COUNT(b.id) FILTER (WHERE b.status IN ('active', 'pending_return')))::int AS active_loans,
+             ROUND(AVG(b.returned_date - b.borrow_date) FILTER (WHERE b.status = 'returned'), 1) AS avg_days,
+             MAX(b.returned_date - b.borrow_date) FILTER (WHERE b.status = 'returned') AS max_days,
+             (COUNT(b.id) FILTER (WHERE
+                (b.status = 'returned' AND b.returned_date > b.expected_return_date) OR
+                (b.status IN ('active', 'pending_return') AND b.expected_return_date < (NOW() AT TIME ZONE 'Asia/Bangkok')::date)
+             ))::int AS late_count
+      FROM users u
+      LEFT JOIN borrowings b ON b.user_id = u.id
+      GROUP BY u.id
+      HAVING u.role <> 'admin' OR COUNT(b.id) > 0
+      ORDER BY active_loans DESC, late_count DESC, total_loans DESC, u.name
+    `;
+    const loans = await sql`
+      SELECT b.id, b.user_id, b.game_id, b.borrow_date, b.expected_return_date, b.returned_date, b.status,
+             (COALESCE(b.returned_date, (NOW() AT TIME ZONE 'Asia/Bangkok')::date) - b.borrow_date) AS days,
+             (b.expected_return_date - b.borrow_date) AS days_requested
+      FROM borrowings b
+      ORDER BY b.borrow_date DESC, b.id DESC
+    `;
+    res.json({ borrowers, loans });
+  } catch (err) {
+    console.error("Borrowers error:", err);
+    res.status(500).json({ error: "Failed to fetch borrowers" });
+  }
+});
+
+// ── Admin: SMS for overdue borrowings ────────────────────────
+
+function overdueSmsText({ name, gameName, expectedReturnDate, daysOverdue }) {
+  const d = String(expectedReturnDate).slice(0, 10).split("-").reverse().join("/");
+  return `[Board Game Library] คุณ${name} กรุณาคืนเกม "${gameName}" ซึ่งเลยกำหนดคืน (${d}) มาแล้ว ${daysOverdue} วัน ขอบคุณค่ะ`;
+}
+
+app.post("/api/admin/borrowings/:id/sms", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const [b] = await sql`
+      SELECT b.id, b.game_id, b.expected_return_date, u.name, u.phone,
+             ((NOW() AT TIME ZONE 'Asia/Bangkok')::date - b.expected_return_date) AS days_overdue
+      FROM borrowings b JOIN users u ON u.id = b.user_id
+      WHERE b.id = ${req.params.id} AND b.status = 'active'
+    `;
+    if (!b) return res.status(404).json({ error: "Active borrowing not found" });
+    if (!b.phone) return res.status(400).json({ error: "Borrower has no phone number on file" });
+    if (b.days_overdue <= 0) return res.status(400).json({ error: "Borrowing is not overdue" });
+
+    const game = GAMES.find((g) => g.id === b.game_id);
+    const message = overdueSmsText({
+      name: b.name,
+      gameName: game?.name || `#${b.game_id}`,
+      expectedReturnDate: b.expected_return_date,
+      daysOverdue: b.days_overdue,
+    });
+
+    if (!smsConfigured()) {
+      return res.status(503).json({ code: "SMS_NOT_CONFIGURED", phone: b.phone, message });
+    }
+    await sendSms(b.phone, message);
+    await sql`UPDATE borrowings SET last_sms_at = NOW() WHERE id = ${b.id}`;
+    res.json({ sent: true, phone: b.phone });
+  } catch (err) {
+    console.error("SMS error:", err);
+    res.status(502).json({ error: err.message || "Failed to send SMS" });
+  }
+});
+
+// ── Automatic due-date reminders ─────────────────────────────
+
+async function runReminders() {
+  const dueSoon = await sql`
+    SELECT b.id, b.game_id, b.expected_return_date, u.name, u.email
+    FROM borrowings b JOIN users u ON u.id = b.user_id
+    WHERE b.status = 'active' AND NOT COALESCE(b.due_soon_sent, FALSE)
+      AND b.expected_return_date = (NOW() AT TIME ZONE 'Asia/Bangkok')::date + 1
+  `;
+  const overdue = await sql`
+    SELECT b.id, b.game_id, b.expected_return_date, u.name, u.email,
+           ((NOW() AT TIME ZONE 'Asia/Bangkok')::date - b.expected_return_date) AS days_overdue
+    FROM borrowings b JOIN users u ON u.id = b.user_id
+    WHERE b.status = 'active'
+      AND b.expected_return_date < (NOW() AT TIME ZONE 'Asia/Bangkok')::date
+      AND (b.last_overdue_notice IS NULL
+           OR b.last_overdue_notice <= (NOW() AT TIME ZONE 'Asia/Bangkok')::date - 3)
+  `;
+
+  const result = { dueSoon: 0, overdue: 0, failed: 0 };
+  const send = async (row, daysOverdue) => {
+    const game = GAMES.find((g) => g.id === row.game_id);
+    if (!row.email || !game) return false;
+    try {
+      await sendDueReminder({
+        email: row.email,
+        name: row.name,
+        gameName: game.name,
+        expectedReturnDate: row.expected_return_date,
+        daysOverdue,
+      });
+      return true;
+    } catch (err) {
+      console.error("Reminder email error:", err);
+      result.failed++;
+      return false;
+    }
+  };
+
+  for (const row of dueSoon) {
+    if (await send(row, 0)) {
+      await sql`UPDATE borrowings SET due_soon_sent = TRUE WHERE id = ${row.id}`;
+      result.dueSoon++;
+    }
+  }
+  for (const row of overdue) {
+    if (await send(row, row.days_overdue)) {
+      await sql`UPDATE borrowings SET last_overdue_notice = (NOW() AT TIME ZONE 'Asia/Bangkok')::date WHERE id = ${row.id}`;
+      result.overdue++;
+    }
+  }
+  return result;
+}
+
+app.get("/api/cron/reminders", async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || req.headers.authorization !== `Bearer ${secret}`) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    res.json(await runReminders());
+  } catch (err) {
+    console.error("Cron reminders error:", err);
+    res.status(500).json({ error: "Reminder run failed" });
+  }
+});
+
+app.post("/api/admin/reminders/run", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    res.json(await runReminders());
+  } catch (err) {
+    console.error("Manual reminders error:", err);
+    res.status(500).json({ error: "Reminder run failed" });
+  }
+});
+
+app.get("/api/admin/sms-status", requireAuth, requireAdmin, (req, res) => {
+  res.json({ configured: smsConfigured() });
+});
+
 // ── Schema init (runs once) ──────────────────────────────────
 
 let schemaReady = initSchema().catch((err) => {

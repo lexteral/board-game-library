@@ -25,7 +25,8 @@
   "nav": {
     "dashboard": "Dashboard",
     "manage": "Manage",
-    "history": "History"
+    "history": "History",
+    "admin": "Borrowers"
   },
   "dashboard": {
     "title": "Board Games",
@@ -130,5 +131,36 @@
     "borrowDate": "Borrow Date",
     "returnDate": "Return Date",
     "noHistory": "No borrowing history yet."
+  },
+  "admin": {
+    "title": "Borrower Status",
+    "lede": "See who has each game, how long every borrower keeps games, and nudge anyone who is late.",
+    "runReminders": "Send reminder emails now",
+    "remindersDone": "Reminders sent: {{dueSoon}} due tomorrow, {{overdue}} overdue.",
+    "statBorrowed": "Borrowed now",
+    "statOverdue": "Overdue",
+    "statAvailable": "Available",
+    "statBorrowers": "Members",
+    "tabGames": "By Game",
+    "tabBorrowers": "By Borrower",
+    "searchPlaceholder": "Search game, name, ID or phone...",
+    "timesBorrowed": "Borrowed {{count}} times",
+    "daysBorrowed": "{{count}} days so far",
+    "overdueDays": "{{count}} days overdue",
+    "sendSms": "Send SMS",
+    "smsSent": "SMS sent to {{phone}}",
+    "smsFallbackHint": "SMS service not connected yet. \"Send SMS\" opens your phone's messaging app with the message ready to send.",
+    "totalLoans": "Total loans",
+    "activeLoans": "Borrowing now",
+    "avgDays": "Avg. days kept",
+    "lateCount": "Late",
+    "days": "{{count}} days",
+    "noBorrowers": "No borrowers found.",
+    "noLoans": "No borrowings yet.",
+    "notReturned": "not returned",
+    "requestedVsActual": "requested {{requested}} days, kept {{actual}} days",
+    "returnedLate": "Returned late",
+    "returnedOnTime": "Returned on time",
+    "borrowing": "Borrowing"
   }
 }

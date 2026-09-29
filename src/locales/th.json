@@ -25,7 +25,8 @@
   "nav": {
     "dashboard": "หน้าหลัก",
     "manage": "จัดการ",
-    "history": "ประวัติ"
+    "history": "ประวัติ",
+    "admin": "ผู้ยืม"
   },
   "dashboard": {
     "title": "บอร์ดเกม",
@@ -130,5 +131,36 @@
     "borrowDate": "วันที่ยืม",
     "returnDate": "วันที่คืน",
     "noHistory": "ยังไม่มีประวัติการยืม"
+  },
+  "admin": {
+    "title": "สถานะผู้ยืม",
+    "lede": "ดูว่าใครยืมเกมไหนอยู่ แต่ละคนยืมนานเท่าไร และแจ้งเตือนผู้ที่เลยกำหนดคืน",
+    "runReminders": "ส่งอีเมลแจ้งเตือนตอนนี้",
+    "remindersDone": "ส่งแจ้งเตือนแล้ว: ครบกำหนดพรุ่งนี้ {{dueSoon}} รายการ, เลยกำหนด {{overdue}} รายการ",
+    "statBorrowed": "ถูกยืมอยู่",
+    "statOverdue": "เลยกำหนด",
+    "statAvailable": "ว่าง",
+    "statBorrowers": "สมาชิก",
+    "tabGames": "ตามเกม",
+    "tabBorrowers": "ตามผู้ยืม",
+    "searchPlaceholder": "ค้นหาเกม ชื่อ รหัส หรือเบอร์โทร...",
+    "timesBorrowed": "ถูกยืม {{count}} ครั้ง",
+    "daysBorrowed": "ยืมมาแล้ว {{count}} วัน",
+    "overdueDays": "เลยกำหนด {{count}} วัน",
+    "sendSms": "ส่ง SMS",
+    "smsSent": "ส่ง SMS ไปที่ {{phone}} แล้ว",
+    "smsFallbackHint": "ยังไม่ได้เชื่อมต่อบริการ SMS ปุ่ม \"ส่ง SMS\" จะเปิดแอปข้อความในโทรศัพท์พร้อมข้อความที่เขียนไว้ให้",
+    "totalLoans": "ยืมทั้งหมด",
+    "activeLoans": "กำลังยืม",
+    "avgDays": "ระยะเวลายืมเฉลี่ย",
+    "lateCount": "คืนช้า",
+    "days": "{{count}} วัน",
+    "noBorrowers": "ไม่พบผู้ยืม",
+    "noLoans": "ยังไม่มีประวัติการยืม",
+    "notReturned": "ยังไม่คืน",
+    "requestedVsActual": "ขอยืม {{requested}} วัน, ยืมจริง {{actual}} วัน",
+    "returnedLate": "คืนช้า",
+    "returnedOnTime": "คืนตรงเวลา",
+    "borrowing": "กำลังยืม"
   }
 }

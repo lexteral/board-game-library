@@ -7,11 +7,18 @@ import History from "./pages/History";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><span className="text-lg text-gray-400">Loading...</span></div>;
   if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+  if (user?.role !== "admin") return <Navigate to="/" replace />;
   return children;
 }
 
@@ -34,6 +41,7 @@ export default function App() {
             <Route path="manage" element={<Manage />} />
             <Route path="history" element={<History />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="admin" element={<AdminRoute><Admin /></AdminRoute>} />
           </Route>
         </Routes>
       </AuthProvider>
