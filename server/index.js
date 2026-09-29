@@ -219,13 +219,10 @@ app.get("/api/borrowings/history", requireAuth, async (req, res) => {
 
 app.post("/api/borrowings", requireAuth, async (req, res) => {
   try {
-    const { gameId, expectedReturnDate, acceptRules } = req.body;
+    const { gameId, expectedReturnDate } = req.body;
 
     if (!gameId || !expectedReturnDate) {
       return res.status(400).json({ error: "gameId and expectedReturnDate are required" });
-    }
-    if (acceptRules !== true) {
-      return res.status(400).json({ error: "You must check the game pieces and accept the borrowing rules" });
     }
 
     const [me] = await sql`
@@ -247,8 +244,8 @@ app.post("/api/borrowings", requireAuth, async (req, res) => {
     }
 
     const [borrowing] = await sql`
-      INSERT INTO borrowings (game_id, user_id, expected_return_date, rules_accepted_at)
-      VALUES (${gameId}, ${req.user.id}, ${expectedReturnDate}, NOW())
+      INSERT INTO borrowings (game_id, user_id, expected_return_date)
+      VALUES (${gameId}, ${req.user.id}, ${expectedReturnDate})
       RETURNING id, game_id, borrow_date, expected_return_date, status
     `;
 
@@ -277,12 +274,7 @@ app.post("/api/borrowings", requireAuth, async (req, res) => {
 
 app.post("/api/borrowings/:id/return", requireAuth, async (req, res) => {
   try {
-    const { photo } = req.body;
     const note = String(req.body.note || "").trim() || null;
-
-    if (!photo) {
-      return res.status(400).json({ error: "Photo is required" });
-    }
 
     const [target] = await sql`SELECT game_id FROM borrowings WHERE id = ${req.params.id} AND status = 'active'`;
     if (!target) {
@@ -305,7 +297,7 @@ app.post("/api/borrowings/:id/return", requireAuth, async (req, res) => {
 
     const [borrowing] = await sql`
       UPDATE borrowings
-      SET status = 'pending_return', return_photo = ${photo},
+      SET status = 'pending_return', return_photo = NULL,
           return_checklist = ${JSON.stringify(checklist)}::jsonb, return_note = ${note}
       WHERE id = ${req.params.id} AND status = 'active'
       RETURNING id, game_id, user_id, status

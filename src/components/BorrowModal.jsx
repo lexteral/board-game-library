@@ -10,7 +10,6 @@ export default function BorrowModal({ game, onConfirm, onClose }) {
 
   const [expectedReturnDate, setExpectedReturnDate] = useState("");
   const [error, setError] = useState("");
-  const [accepted, setAccepted] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,11 +21,7 @@ export default function BorrowModal({ game, onConfirm, onClose }) {
       setError(t("borrow.errors.returnDatePast"));
       return;
     }
-    if (!accepted) {
-      setError(t("rules.mustAccept"));
-      return;
-    }
-    onConfirm({ gameId: game.id, expectedReturnDate, acceptRules: true });
+    onConfirm({ gameId: game.id, expectedReturnDate });
   };
 
   return (
@@ -67,15 +62,6 @@ export default function BorrowModal({ game, onConfirm, onClose }) {
           <div className="rounded-xl border-2 border-amber-100 bg-amber-50 p-4">
             <div className="font-extrabold text-gray-900 mb-3">{t("rules.title")}</div>
             <RulesList compact />
-            <label className="flex items-start gap-2.5 mt-4 pt-3 border-t-2 border-amber-100 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={accepted}
-                onChange={(e) => { setAccepted(e.target.checked); setError(""); }}
-                className="mt-1 w-4 h-4 accent-[var(--primary)] shrink-0"
-              />
-              <span className="text-sm font-semibold text-gray-900">{t("rules.accept")}</span>
-            </label>
           </div>
 
           {error && <span className="text-sm text-red-600">{error}</span>}
@@ -90,8 +76,7 @@ export default function BorrowModal({ game, onConfirm, onClose }) {
             </button>
             <button
               type="submit"
-              disabled={!accepted}
-              className="flex-1 disabled:opacity-40 disabled:cursor-not-allowed py-2.5 rounded-lg text-sm font-medium text-white btn-gradient transition-all hover:shadow-md hover:shadow-violet-200"
+              className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white btn-gradient transition-all hover:shadow-md hover:shadow-violet-200"
             >
               {t("borrow.submit")}
             </button>

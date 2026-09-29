@@ -154,7 +154,7 @@ export default function Manage() {
                   <th className="px-4 py-3">{t("manage.game")}</th>
                   <th className="px-4 py-3">{t("manage.borrower")}</th>
                   <th className="px-4 py-3">{t("manage.studentId")}</th>
-                  <th className="px-4 py-3">{t("manage.photo")}</th>
+                  {pending.some((b) => b.return_photo) && <th className="px-4 py-3">{t("manage.photo")}</th>}
                   {isAdmin && <th className="px-4 py-3">{t("manage.action")}</th>}
                 </tr>
               </thead>
@@ -167,6 +167,7 @@ export default function Manage() {
                     </td>
                     <td className="px-4 py-3 text-gray-700">{b.borrower_name}</td>
                     <td className="px-4 py-3 text-gray-700">{b.borrower_student_id}</td>
+                    {pending.some((p) => p.return_photo) && (
                     <td className="px-4 py-3">
                       {b.return_photo && (
                         <button
@@ -177,6 +178,7 @@ export default function Manage() {
                         </button>
                       )}
                     </td>
+                    )}
                     {isAdmin && (
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
