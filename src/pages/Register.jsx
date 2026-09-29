@@ -23,6 +23,11 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
+    if (![name, studentId, email, phone, password, confirmPassword].every((v) => v.trim())) {
+      setError(t("profile.allFieldsRequired"));
+      return;
+    }
+
     if (!/^\d{8}$/.test(studentId)) {
       setError(t("auth.invalidStudentId"));
       return;
@@ -46,7 +51,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(name, studentId, password, email, phone);
+      await register(name.trim(), studentId.trim(), password, email.trim(), phone.trim());
       navigate("/");
     } catch (err) {
       setError(err.message);
@@ -81,7 +86,7 @@ export default function Register() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.name")}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.name")} <span className="text-fuchsia-500">*</span></label>
             <input
               type="text"
               className="input"
@@ -92,7 +97,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.studentId")}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.studentId")} <span className="text-fuchsia-500">*</span></label>
             <input
               type="text"
               className="input"
@@ -105,7 +110,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.email")}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.email")} <span className="text-fuchsia-500">*</span></label>
             <input
               type="email"
               className="input"
@@ -117,7 +122,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.phone")}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.phone")} <span className="text-fuchsia-500">*</span></label>
             <input
               type="tel"
               inputMode="numeric"
@@ -131,7 +136,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.password")}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.password")} <span className="text-fuchsia-500">*</span></label>
             <input
               type="password"
               className="input"
@@ -142,7 +147,7 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.confirmPassword")}</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.confirmPassword")} <span className="text-fuchsia-500">*</span></label>
             <input
               type="password"
               className="input"

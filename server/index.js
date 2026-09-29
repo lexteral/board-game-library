@@ -23,7 +23,10 @@ function userJson(u) {
 
 app.post("/api/auth/register", async (req, res) => {
   try {
-    const { name, studentId, password, email } = req.body;
+    const name = String(req.body.name || "").trim();
+    const studentId = String(req.body.studentId || "").trim();
+    const email = String(req.body.email || "").trim();
+    const password = String(req.body.password || "");
     const phone = normalizePhone(req.body.phone);
 
     if (!name || !studentId || !password || !email || !phone) {
