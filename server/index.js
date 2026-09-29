@@ -4,7 +4,7 @@ import cors from "cors";
 import bcrypt from "bcryptjs";
 import sql, { initSchema } from "./db.js";
 import { createToken, requireAuth, requireAdmin } from "./auth.js";
-import { sendBorrowConfirmation, sendReturnApprovalConfirmation, sendDueReminder } from "./email.js";
+import { sendBorrowConfirmation, sendReturnApprovalConfirmation, sendReturnSubmitted, sendDueReminder } from "./email.js";
 import { sendSms, smsConfigured } from "./sms.js";
 import GAMES from "../src/data/games.js";
 
@@ -233,13 +233,17 @@ app.post("/api/borrowings", requireAuth, async (req, res) => {
     const [borrower] = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
     const game = GAMES.find((g) => g.id === gameId);
     if (borrower?.email && game) {
-      sendBorrowConfirmation({
-        email: borrower.email,
-        name: borrower.name,
-        gameName: game.name,
-        borrowDate: borrowing.borrow_date?.toString().slice(0, 10) || new Date().toISOString().slice(0, 10),
-        expectedReturnDate: expectedReturnDate,
-      }).catch((err) => console.error("Email send error:", err));
+      try {
+        await sendBorrowConfirmation({
+          email: borrower.email,
+          name: borrower.name,
+          gameName: game.name,
+          borrowDate: borrowing.borrow_date,
+          expectedReturnDate: expectedReturnDate,
+        });
+      } catch (err) {
+        console.error("Borrow email error:", err);
+      }
     }
 
     res.status(201).json(borrowing);
@@ -261,11 +265,21 @@ app.post("/api/borrowings/:id/return", requireAuth, async (req, res) => {
       UPDATE borrowings
       SET status = 'pending_return', return_photo = ${photo}
       WHERE id = ${req.params.id} AND status = 'active'
-      RETURNING id, game_id, status
+      RETURNING id, game_id, user_id, status
     `;
 
     if (!borrowing) {
       return res.status(404).json({ error: "Active borrowing not found" });
+    }
+
+    const [borrower] = await sql`SELECT email, name FROM users WHERE id = ${borrowing.user_id}`;
+    const game = GAMES.find((g) => g.id === borrowing.game_id);
+    if (borrower?.email && game) {
+      try {
+        await sendReturnSubmitted({ email: borrower.email, name: borrower.name, gameName: game.name });
+      } catch (err) {
+        console.error("Return submitted email error:", err);
+      }
     }
 
     res.json(borrowing);
@@ -291,12 +305,16 @@ app.post("/api/borrowings/:id/approve", requireAuth, requireAdmin, async (req, r
     const [borrower] = await sql`SELECT email, name FROM users WHERE id = ${borrowing.user_id}`;
     const game = GAMES.find((g) => g.id === borrowing.game_id);
     if (borrower?.email && game) {
-      sendReturnApprovalConfirmation({
-        email: borrower.email,
-        name: borrower.name,
-        gameName: game.name,
-        returnedDate: borrowing.returned_date?.toString().slice(0, 10) || new Date().toISOString().slice(0, 10),
-      }).catch((err) => console.error("Email send error:", err));
+      try {
+        await sendReturnApprovalConfirmation({
+          email: borrower.email,
+          name: borrower.name,
+          gameName: game.name,
+          returnedDate: borrowing.returned_date,
+        });
+      } catch (err) {
+        console.error("Return approval email error:", err);
+      }
     }
 
     res.json(borrowing);

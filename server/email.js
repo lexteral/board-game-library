@@ -12,6 +12,11 @@ const transporter = nodemailer.createTransport({
 const FROM = process.env.SMTP_FROM || process.env.SMTP_USER;
 
 function fmtDate(d) {
+  if (!d) return "-";
+  if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}/.test(d)) {
+    const [y, m, day] = d.slice(0, 10).split("-");
+    return `${day}/${m}/${y}`;
+  }
   const date = new Date(d);
   const day = String(date.getUTCDate()).padStart(2, "0");
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
@@ -77,6 +82,28 @@ export async function sendDueReminder({ email, name, gameName, expectedReturnDat
           </p>
         </div>
         <p style="color:#444;font-size:14px">${thai}<br/>${eng}</p>
+        <hr style="border:none;border-top:1px solid #F2F0EB;margin:16px 0"/>
+        <p style="color:#999;font-size:12px;margin:0">Board Game Library — English Teaching Department, School of Education, WU</p>
+      </div>
+    `,
+  });
+}
+
+export async function sendReturnSubmitted({ email, name, gameName }) {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+
+  await transporter.sendMail({
+    from: `"Board Game Library 🎲" <${FROM}>`,
+    to: email,
+    subject: `Return Received: ${gameName}`,
+    html: `
+      <div style="font-family:'Sarabun',sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#FFFDF9;border-radius:16px">
+        <h2 style="color:#2459E8;margin:0 0 16px">📦 Return Received</h2>
+        <p>สวัสดีค่ะ/ครับ <strong>${name}</strong>,</p>
+        <div style="background:#fff;border:2px solid #F2F0EB;border-radius:12px;padding:16px;margin:12px 0">
+          <p style="margin:0;font-size:18px;font-weight:bold;color:#242422">${gameName}</p>
+        </div>
+        <p style="color:#444;font-size:14px">ระบบได้รับการคืนเกมของคุณแล้ว กำลังรอผู้ดูแลตรวจสอบ<br/>We received your return. An admin will check the game and confirm shortly.</p>
         <hr style="border:none;border-top:1px solid #F2F0EB;margin:16px 0"/>
         <p style="color:#999;font-size:12px;margin:0">Board Game Library — English Teaching Department, School of Education, WU</p>
       </div>
