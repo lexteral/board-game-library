@@ -46,6 +46,44 @@ export async function sendBorrowConfirmation({ email, name, gameName, borrowDate
   });
 }
 
+export async function sendDueReminder({ email, name, gameName, expectedReturnDate, daysOverdue }) {
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+
+  const overdue = daysOverdue > 0;
+  const color = overdue ? "#ED438B" : "#F58220";
+  const subject = overdue
+    ? `Overdue (${daysOverdue} day${daysOverdue > 1 ? "s" : ""}): ${gameName}`
+    : `Due tomorrow: ${gameName}`;
+  const headline = overdue ? "⏰ This game is overdue" : "📅 Return reminder";
+  const thai = overdue
+    ? `เกมนี้เลยกำหนดคืนมาแล้ว ${daysOverdue} วัน กรุณานำมาคืนโดยเร็วที่สุด`
+    : "กรุณานำเกมมาคืนภายในวันพรุ่งนี้";
+  const eng = overdue
+    ? `This game is ${daysOverdue} day${daysOverdue > 1 ? "s" : ""} past its return date. Please return it as soon as possible.`
+    : "Friendly reminder: this game is due back tomorrow.";
+
+  await transporter.sendMail({
+    from: `"Board Game Library 🎲" <${FROM}>`,
+    to: email,
+    subject,
+    html: `
+      <div style="font-family:'Sarabun',sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#FFFDF9;border-radius:16px">
+        <h2 style="color:${color};margin:0 0 16px">${headline}</h2>
+        <p>สวัสดีค่ะ/ครับ <strong>${name}</strong>,</p>
+        <div style="background:#fff;border:2px solid #F2F0EB;border-radius:12px;padding:16px;margin:12px 0">
+          <p style="margin:0;font-size:18px;font-weight:bold;color:#242422">${gameName}</p>
+          <p style="margin:8px 0 0;color:#666;font-size:14px">
+            📅 Expected Return: <strong>${fmtDate(expectedReturnDate)}</strong>
+          </p>
+        </div>
+        <p style="color:#444;font-size:14px">${thai}<br/>${eng}</p>
+        <hr style="border:none;border-top:1px solid #F2F0EB;margin:16px 0"/>
+        <p style="color:#999;font-size:12px;margin:0">Board Game Library — English Teaching Department, School of Education, WU</p>
+      </div>
+    `,
+  });
+}
+
 export async function sendReturnApprovalConfirmation({ email, name, gameName, returnedDate }) {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
 

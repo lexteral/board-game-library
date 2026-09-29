@@ -34,6 +34,11 @@ export async function initSchema() {
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS return_photo TEXT`;
 
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255)`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20)`;
+
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS due_soon_sent BOOLEAN DEFAULT FALSE`;
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS last_overdue_notice DATE`;
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS last_sms_at TIMESTAMPTZ`;
 
   console.log("Database schema ready");
 }

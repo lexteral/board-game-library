@@ -13,6 +13,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [studentId, setStudentId] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,6 +31,10 @@ export default function Register() {
       setError(t("auth.invalidEmail"));
       return;
     }
+    if (!/^0\d{9}$/.test(phone.replace(/[\s-]/g, ""))) {
+      setError(t("auth.invalidPhone"));
+      return;
+    }
     if (password.length < 4) {
       setError(t("auth.passwordTooShort"));
       return;
@@ -41,7 +46,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(name, studentId, password, email);
+      await register(name, studentId, password, email, phone);
       navigate("/");
     } catch (err) {
       setError(err.message);
@@ -107,6 +112,20 @@ export default function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("auth.emailPlaceholder")}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.phone")}</label>
+            <input
+              type="tel"
+              inputMode="numeric"
+              className="input"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="0812345678"
+              maxLength={12}
               required
             />
           </div>

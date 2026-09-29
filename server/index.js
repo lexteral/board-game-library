@@ -4,20 +4,29 @@ import cors from "cors";
 import bcrypt from "bcryptjs";
 import sql, { initSchema } from "./db.js";
 import { createToken, requireAuth, requireAdmin } from "./auth.js";
-import { sendBorrowConfirmation, sendReturnApprovalConfirmation } from "./email.js";
+import { sendBorrowConfirmation, sendReturnApprovalConfirmation, sendDueReminder } from "./email.js";
+import { sendSms, smsConfigured } from "./sms.js";
 import GAMES from "../src/data/games.js";
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
+const normalizePhone = (p) => String(p || "").replace(/[\s-]/g, "");
+const PHONE_RE = /^0\d{9}$/;
+
+function userJson(u) {
+  return { id: u.id, name: u.name, studentId: u.student_id, email: u.email, phone: u.phone, role: u.role };
+}
+
 // ── Auth routes ──────────────────────────────────────────────
 
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { name, studentId, password, email } = req.body;
+    const phone = normalizePhone(req.body.phone);
 
-    if (!name || !studentId || !password || !email) {
+    if (!name || !studentId || !password || !email || !phone) {
       return res.status(400).json({ error: "All fields are required" });
     }
     if (!/^\d{8}$/.test(studentId)) {
@@ -29,6 +38,9 @@ app.post("/api/auth/register", async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: "Invalid email address" });
     }
+    if (!PHONE_RE.test(phone)) {
+      return res.status(400).json({ error: "Phone number must be 10 digits starting with 0" });
+    }
 
     const existing = await sql`SELECT id FROM users WHERE student_id = ${studentId}`;
     if (existing.length > 0) {
@@ -37,12 +49,12 @@ app.post("/api/auth/register", async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
     const [user] = await sql`
-      INSERT INTO users (name, student_id, password_hash, email)
-      VALUES (${name}, ${studentId}, ${passwordHash}, ${email})
-      RETURNING id, name, student_id, email, role
+      INSERT INTO users (name, student_id, password_hash, email, phone)
+      VALUES (${name}, ${studentId}, ${passwordHash}, ${email}, ${phone})
+      RETURNING id, name, student_id, email, phone, role
     `;
 
-    res.status(201).json({ token: createToken(user), user: { id: user.id, name: user.name, studentId: user.student_id, email: user.email, role: user.role } });
+    res.status(201).json({ token: createToken(user), user: userJson(user) });
   } catch (err) {
     console.error("Register error:", err);
     res.status(500).json({ error: "Registration failed" });
@@ -63,7 +75,7 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid student ID or password" });
     }
 
-    res.json({ token: createToken(user), user: { id: user.id, name: user.name, studentId: user.student_id, email: user.email, role: user.role } });
+    res.json({ token: createToken(user), user: userJson(user) });
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ error: "Login failed" });
@@ -72,9 +84,9 @@ app.post("/api/auth/login", async (req, res) => {
 
 app.get("/api/auth/me", requireAuth, async (req, res) => {
   try {
-    const [user] = await sql`SELECT id, name, student_id, email, role FROM users WHERE id = ${req.user.id}`;
+    const [user] = await sql`SELECT id, name, student_id, email, phone, role FROM users WHERE id = ${req.user.id}`;
     if (!user) return res.status(404).json({ error: "User not found" });
-    res.json({ id: user.id, name: user.name, studentId: user.student_id, email: user.email, role: user.role });
+    res.json(userJson(user));
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch user" });
   }
@@ -83,19 +95,23 @@ app.get("/api/auth/me", requireAuth, async (req, res) => {
 app.put("/api/auth/profile", requireAuth, async (req, res) => {
   try {
     const { name, email } = req.body;
+    const phone = normalizePhone(req.body.phone);
     if (!name || !email) {
       return res.status(400).json({ error: "Name and email are required" });
+    }
+    if (phone && !PHONE_RE.test(phone)) {
+      return res.status(400).json({ error: "Phone number must be 10 digits starting with 0" });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: "Invalid email address" });
     }
     const [user] = await sql`
-      UPDATE users SET name = ${name}, email = ${email}
+      UPDATE users SET name = ${name}, email = ${email}, phone = ${phone || null}
       WHERE id = ${req.user.id}
-      RETURNING id, name, student_id, email, role
+      RETURNING id, name, student_id, email, phone, role
     `;
     if (!user) return res.status(404).json({ error: "User not found" });
-    res.json({ id: user.id, name: user.name, studentId: user.student_id, email: user.email, role: user.role });
+    res.json(userJson(user));
   } catch (err) {
     console.error("Profile update error:", err);
     res.status(500).json({ error: "Failed to update profile" });

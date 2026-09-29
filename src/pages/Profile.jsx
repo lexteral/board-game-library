@@ -9,6 +9,7 @@ export default function Profile() {
 
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
+  const [phone, setPhone] = useState(user?.phone || "");
   const [profileMsg, setProfileMsg] = useState("");
   const [profileError, setProfileError] = useState("");
   const [profileLoading, setProfileLoading] = useState(false);
@@ -32,12 +33,16 @@ export default function Profile() {
       setProfileError(t("auth.invalidEmail"));
       return;
     }
+    if (phone && !/^0\d{9}$/.test(phone.replace(/[\s-]/g, ""))) {
+      setProfileError(t("auth.invalidPhone"));
+      return;
+    }
     setProfileLoading(true);
     try {
       const res = await authFetch("/api/auth/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), phone: phone.trim() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -126,6 +131,19 @@ export default function Profile() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t("auth.emailPlaceholder")}
             required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t("auth.phone")}</label>
+          <input
+            type="tel"
+            inputMode="numeric"
+            className="input"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="0812345678"
+            maxLength={12}
           />
         </div>
 

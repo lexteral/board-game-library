@@ -14,6 +14,8 @@
     "hasAccount": "มีบัญชีอยู่แล้ว?",
     "email": "อีเมล",
     "emailPlaceholder": "example@email.com",
+    "phone": "เบอร์โทรศัพท์",
+    "invalidPhone": "เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลักขึ้นต้นด้วย 0",
     "invalidEmail": "กรุณากรอกอีเมลที่ถูกต้อง",
     "invalidStudentId": "รหัสนักศึกษาต้องเป็นตัวเลข 8 หลัก",
     "passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร",
