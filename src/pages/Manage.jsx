@@ -5,6 +5,7 @@ import PageTitle from "../components/PageTitle";
 import { useAuth } from "../context/AuthContext";
 import ReturnModal from "../components/ReturnModal";
 import PhotoModal from "../components/PhotoModal";
+import ReviewReturnModal from "../components/ReviewReturnModal";
 
 function ChecklistSummary({ checklist, note, t }) {
   if (!Array.isArray(checklist)) return null;
@@ -36,6 +37,7 @@ export default function Manage() {
   const [toast, setToast] = useState("");
   const [returnTarget, setReturnTarget] = useState(null);
   const [viewPhoto, setViewPhoto] = useState(null);
+  const [reviewTarget, setReviewTarget] = useState(null);
 
   const gameMap = Object.fromEntries(GAMES.map((g) => [g.id, g]));
   const today = new Date().toISOString().slice(0, 10);
@@ -83,9 +85,19 @@ export default function Manage() {
     loadData();
   };
 
-  const handleApprove = async (id) => {
-    const res = await authFetch(`/api/borrowings/${id}/approve`, { method: "POST" });
-    if (res.ok) { showToast(t("manage.approveSuccess")); loadData(); }
+  const handleApprove = async (id, payload) => {
+    const res = await authFetch(`/api/borrowings/${id}/approve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error);
+    }
+    setReviewTarget(null);
+    showToast(t("manage.approveSuccess"));
+    loadData();
   };
 
   const handleReject = async (id) => {
@@ -128,7 +140,7 @@ export default function Manage() {
                   {isAdmin && (
                     <div className="flex gap-2 ml-auto">
                       <button
-                        onClick={() => handleApprove(b.id)}
+                        onClick={() => setReviewTarget(b)}
                         className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors"
                       >
                         {t("manage.approveButton")}
@@ -183,7 +195,7 @@ export default function Manage() {
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleApprove(b.id)}
+                            onClick={() => setReviewTarget(b)}
                             className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors"
                           >
                             {t("manage.approveButton")}
@@ -302,6 +314,16 @@ export default function Manage() {
           game={returnTarget.game}
           onConfirm={handleReturn}
           onClose={() => setReturnTarget(null)}
+        />
+      )}
+
+      {reviewTarget && (
+        <ReviewReturnModal
+          borrowing={reviewTarget}
+          game={gameMap[reviewTarget.game_id]}
+          onApprove={(payload) => handleApprove(reviewTarget.id, payload)}
+          onReject={async () => { await handleReject(reviewTarget.id); setReviewTarget(null); }}
+          onClose={() => setReviewTarget(null)}
         />
       )}
 

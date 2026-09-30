@@ -103,7 +103,7 @@
     "onTime": "On Time",
     "overdue": "Overdue",
     "pendingReturn": "Pending",
-    "approveButton": "Approve",
+    "approveButton": "Review & approve",
     "rejectButton": "Reject",
     "viewPhoto": "View Photo",
     "noActive": "No active borrowings.",
@@ -224,5 +224,22 @@
     "memory": "Memory",
     "coop": "Co-operative",
     "escape": "Escape room"
+  },
+  "review": {
+    "title": "Review return",
+    "returnedBy": "Returned by",
+    "borrowerNote": "Borrower's note",
+    "checklistTitle": "Admin check",
+    "hint": "Count each component yourself and tick it once confirmed. The line under each item shows what the borrower reported.",
+    "noReport": "No borrower report",
+    "borrowerOk": "Borrower: complete",
+    "borrowerMissing": "Borrower: missing",
+    "adminFound": "Found by admin",
+    "remaining": "{{count}} item(s) not confirmed: add a note before approving.",
+    "allVerified": "All components confirmed by admin.",
+    "notePlaceholder": "What is missing or damaged? (required)",
+    "noteRequired": "Please note which components are missing or damaged.",
+    "approve": "Approve return",
+    "approveWithIssues": "Approve with issues noted"
   }
 }

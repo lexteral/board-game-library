@@ -326,9 +326,31 @@ app.post("/api/borrowings/:id/return", requireAuth, async (req, res) => {
 
 app.post("/api/borrowings/:id/approve", requireAuth, requireAdmin, async (req, res) => {
   try {
+    const note = String(req.body?.note || "").trim() || null;
+    const [target] = await sql`SELECT game_id FROM borrowings WHERE id = ${req.params.id} AND status = 'pending_return'`;
+    if (!target) {
+      return res.status(404).json({ error: "Pending return not found" });
+    }
+    const expectedItems = CHECKLISTS[target.game_id] || [];
+    const submitted = Array.isArray(req.body?.checklist) ? req.body.checklist : [];
+    if (submitted.length !== expectedItems.length) {
+      return res.status(400).json({ error: "Please verify every component before approving" });
+    }
+    const checklist = expectedItems.map((item, i) => {
+      const s = submitted[i] || {};
+      const ok = s.ok === true;
+      const found = ok ? item.expected : Number.isFinite(s.found) ? Math.max(0, Math.floor(s.found)) : null;
+      return { name: item.name, expected: item.expected, ok, found };
+    });
+    if (checklist.some((c) => !c.ok) && !note) {
+      return res.status(400).json({ error: "Please note which components are missing or damaged" });
+    }
+
     const [borrowing] = await sql`
       UPDATE borrowings
-      SET status = 'returned', returned_date = CURRENT_DATE
+      SET status = 'returned', returned_date = (NOW() AT TIME ZONE 'Asia/Bangkok')::date,
+          admin_checklist = ${JSON.stringify(checklist)}::jsonb, admin_note = ${note},
+          reviewed_by = ${req.user.id}, reviewed_at = NOW()
       WHERE id = ${req.params.id} AND status = 'pending_return'
       RETURNING id, game_id, user_id, returned_date
     `;

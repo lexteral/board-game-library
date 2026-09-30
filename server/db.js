@@ -40,6 +40,10 @@ export async function initSchema() {
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS rules_accepted_at TIMESTAMPTZ`;
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS return_checklist JSONB`;
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS return_note TEXT`;
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS admin_checklist JSONB`;
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS admin_note TEXT`;
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS reviewed_by INTEGER`;
+  await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ`;
 
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS due_soon_sent BOOLEAN DEFAULT FALSE`;
   await sql`ALTER TABLE borrowings ADD COLUMN IF NOT EXISTS last_overdue_notice DATE`;
