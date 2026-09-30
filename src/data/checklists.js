@@ -7,7 +7,7 @@ const CHECKLISTS = {
       "expected": 1
     },
     {
-      "name": "Plastic trains, five colours",
+      "name": "Plastic trains, five colours (45/each player)",
       "expected": 225
     },
     {
@@ -127,20 +127,28 @@ const CHECKLISTS = {
   ],
   "7": [
     {
-      "name": "Cards",
-      "expected": 72
+      "name": "Instruction cards",
+      "expected": 42
+    },
+    {
+      "name": "Punishment cards",
+      "expected": 24
     },
     {
       "name": "Tower / building pieces",
-      "expected": null
+      "expected": 34
     },
     {
-      "name": "Other pieces, list on intake",
-      "expected": null
+      "name": "Foundation",
+      "expected": 1
     },
     {
-      "name": "Rulebook",
-      "expected": null
+      "name": "Floor marker",
+      "expected": 3
+    },
+    {
+      "name": "Rulebook + Quick guide (2x2)",
+      "expected": 4
     }
   ],
   "8": [
@@ -198,21 +206,21 @@ const CHECKLISTS = {
     },
     {
       "name": "Rules",
-      "expected": 1
+      "expected": 2
     }
   ],
   "11": [
     {
-      "name": "Location cards: 20 decks x 12",
-      "expected": 240
+      "name": "Location cards: 20 decks x 10",
+      "expected": 200
     },
     {
-      "name": "Resealable bags",
-      "expected": 20
+      "name": "Spy cards 20x2",
+      "expected": 40
     },
     {
       "name": "Rulebook",
-      "expected": 1
+      "expected": 2
     }
   ],
   "12": [
@@ -270,7 +278,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Rulebook",
-      "expected": 1
+      "expected": 2
     }
   ],
   "13": [
@@ -292,7 +300,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Rules",
-      "expected": 1
+      "expected": 2
     }
   ],
   "14": [
@@ -313,7 +321,7 @@ const CHECKLISTS = {
       "expected": 18
     },
     {
-      "name": "Bonus victory tiles",
+      "name": "Number discs",
       "expected": 2
     },
     {
@@ -333,17 +341,13 @@ const CHECKLISTS = {
       "expected": 2
     },
     {
-      "name": "Robber figure",
-      "expected": null
-    },
-    {
       "name": "Rules",
       "expected": 1
     }
   ],
   "15": [
     {
-      "name": "Influence cards",
+      "name": "Influence cards (Team 24+Travel 21+Boss 10+Recruitement 33+Stop 10)",
       "expected": 98
     },
     {
@@ -371,17 +375,17 @@ const CHECKLISTS = {
       "expected": 1
     },
     {
-      "name": "Rules",
-      "expected": 1
+      "name": "Rulebooks",
+      "expected": 2
     }
   ],
   "16": [
     {
-      "name": "Animal",
+      "name": "Animal cards",
       "expected": 32
     },
     {
-      "name": "Spirit",
+      "name": "Spirit cards",
       "expected": 10
     },
     {
@@ -394,7 +398,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Animal cubes",
-      "expected": 66
+      "expected": 75
     },
     {
       "name": "Spirit cubes",
@@ -418,7 +422,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Rules",
-      "expected": 1
+      "expected": 3
     }
   ],
   "17": [
@@ -437,10 +441,6 @@ const CHECKLISTS = {
     {
       "name": "Game-end cards",
       "expected": 1
-    },
-    {
-      "name": "Variant cards, if included",
-      "expected": null
     },
     {
       "name": "Rules",
@@ -472,7 +472,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Rules",
-      "expected": 1
+      "expected": 2
     }
   ],
   "20": [
@@ -494,7 +494,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Rulebooks",
-      "expected": 2
+      "expected": 1
     }
   ],
   "21": [
@@ -533,7 +533,7 @@ const CHECKLISTS = {
       "expected": 8
     },
     {
-      "name": "Red",
+      "name": "Red tokens",
       "expected": 6
     },
     {
@@ -564,7 +564,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Point tokens",
-      "expected": 39
+      "expected": 60
     },
     {
       "name": "Pawns",
@@ -579,8 +579,12 @@ const CHECKLISTS = {
       "expected": 1
     },
     {
+      "name": "Example sheet",
+      "expected": 1
+    },
+    {
       "name": "Game aids",
-      "expected": 4
+      "expected": 3
     },
     {
       "name": "Storage bowl",
@@ -593,7 +597,7 @@ const CHECKLISTS = {
   ],
   "24": [
     {
-      "name": "Adventure",
+      "name": "3 Adventures",
       "expected": 180
     },
     {
@@ -605,7 +609,7 @@ const CHECKLISTS = {
       "expected": 6
     },
     {
-      "name": "Quarantine marker",
+      "name": "Quarantine map",
       "expected": 1
     },
     {
@@ -619,7 +623,7 @@ const CHECKLISTS = {
   ],
   "25": [
     {
-      "name": "Adventure",
+      "name": "3 Adventures",
       "expected": 180
     },
     {
@@ -631,7 +635,7 @@ const CHECKLISTS = {
       "expected": 1
     },
     {
-      "name": "Solutions booklet",
+      "name": "Solution booklet",
       "expected": 1
     },
     {
@@ -643,13 +647,18 @@ const CHECKLISTS = {
 
 export const CHECKLIST_NOTES = {
   "1": "Standard publisher list; confirm Refresh printing, including spare trains.",
+  "2": "No sleeves",
   "5": "Red box: do not use Insider Black counts.",
-  "6": "Provisional count from a Storationship listing; confirm this exact edition.",
+  "6": "Provisional count from a Storationship listing; confirm this exact edition. No sleeves",
   "7": "Complete counts unavailable: establish baseline from delivered box and rules.",
-  "8": "Confirm TH/EN printing at intake.",
+  "8": "No sleeves",
   "10": "Verify edition contents against enclosed rules.",
+  "13": "ถุงใส่ Tiles",
   "14": "Publisher list does not separately specify robber count; check on intake.",
   "17": "Base list is 110 cards; some printings also have six variant cards.",
+  "18": "No sleeves",
+  "21": "เก้าอี้ชำรุด",
+  "23": "No sleeves",
   "24": "Keep each adventure deck separate.",
   "25": "Keep each adventure deck separate."
 };

@@ -16,8 +16,8 @@ function ChecklistSummary({ checklist, note, t }) {
     <div className="mt-1.5 text-xs rounded-lg bg-fuchsia-50 border border-fuchsia-100 px-2.5 py-2">
       <div className="font-bold text-fuchsia-700 mb-1">{t("checklist.missingTitle", { count: missing.length })}</div>
       <ul className="space-y-0.5 text-gray-700">
-        {missing.map((m) => (
-          <li key={m.name}>
+        {missing.map((m, i) => (
+          <li key={i}>
             • {m.name}
             {m.expected != null && <span className="text-gray-500"> ({m.found ?? "?"}/{m.expected})</span>}
           </li>
