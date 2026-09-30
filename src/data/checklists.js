@@ -158,7 +158,7 @@ const CHECKLISTS = {
     },
     {
       "name": "Instructions / extra instruction cards",
-      "expected": null
+      "expected": 2
     }
   ],
   "9": [
@@ -649,12 +649,9 @@ export const CHECKLIST_NOTES = {
   "1": "Standard publisher list; confirm Refresh printing, including spare trains.",
   "2": "No sleeves",
   "5": "Red box: do not use Insider Black counts.",
-  "6": "Provisional count from a Storationship listing; confirm this exact edition. No sleeves",
-  "7": "Complete counts unavailable: establish baseline from delivered box and rules.",
   "8": "No sleeves",
   "10": "Verify edition contents against enclosed rules.",
   "13": "ถุงใส่ Tiles",
-  "14": "Publisher list does not separately specify robber count; check on intake.",
   "17": "Base list is 110 cards; some printings also have six variant cards.",
   "18": "No sleeves",
   "21": "เก้าอี้ชำรุด",
