@@ -321,7 +321,7 @@ const CHECKLISTS = {
       "expected": 18
     },
     {
-      "name": "Number discs",
+      "name": "Bonus victory tiles",
       "expected": 2
     },
     {
